@@ -177,4 +177,6 @@ MPI_Finalize()
   -  input_type's: Sorted, Random, Reverse, Sorted with 1% perturbed
   -  MPI num_procs: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
 - Strong scaling (same problem size, increase number of processors/nodes)
+  - we will keep the input size constant while increasing the number of processors. The goal is to see how efficiently the algorithm can utilize more processors to reduce the runtime for a fixed problem size. This helps in identifying the point where adding more processors does not significantly improve performance 
 - Weak scaling (increase problem size, increase number of processors)
+  - every time the problem sizes are increased, the num_procs will be increased proportionally as well. the results will be plotted with num_procs on the x-axis and input_sizes on the y-axis
