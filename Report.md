@@ -16,7 +16,7 @@ Design and Analysis of Parallel Sorting Algorithms
 - Bitonic Sort (Abigail):
 - Sample Sort (Veda): This project involves the parallel implementation and evaluation of the Sample Sort algorithm, using MPI for inter-process communication. Sample Sort is a parallel sorting algorithm that divides data into partitions, sorting each partition locally, selecting a set of representative samples to determine partition boundaries, and redistributing data before performing a final merge. The algorithm will be tested on the Grace high-performance computing cluster.
 - Merge Sort (Ananya): Merge sort is a divide-and-conquer algorithm. It recursively splits an array into 2 halves, sorts each half, and then merges the two sorted halves to produce a final sorted array using MPI calls. In the parallel implementation of merge sort, the array is divided amongst many processors and each processor sorts a portion of the array concurrently. The algorithm will be tested on the Grace high-performance computing cluster.
-- Radix Sort:
+- Radix Sort: Radix sort sorts an array by sorting by each digits place starting with the ones place. It will iterate through the array as many times as there are digits in the largest value. Each iteration is done in parallel and then will be combined to produce a sorted array using MPI. The algorithm will be tested on the Grace high-performance computing cluster.
 
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
