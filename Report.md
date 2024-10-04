@@ -172,6 +172,9 @@ MPI_Finalize()
 ```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
-- Input sizes, Input types
+- Input sizes, Input types:
+  -  input_size's: 2^16, 2^18, 2^20, 2^22, 2^24, 2^26, 2^28
+  -  input_type's: Sorted, Random, Reverse, Sorted with 1% perturbed
+  -  MPI num_procs: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
 - Strong scaling (same problem size, increase number of processors/nodes)
 - Weak scaling (increase problem size, increase number of processors)
