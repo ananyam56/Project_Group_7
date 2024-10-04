@@ -21,7 +21,7 @@ Design and Analysis of Parallel Sorting Algorithms
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
 2. Sample Sort: 
-Initialize MPI environment
+`Initialize MPI environment
    MPI_Init(&argc, &argv);
    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);      
@@ -83,7 +83,7 @@ Gather sorted data to the root process (optional)
                0, MPI_COMM_WORLD);
 
 Finalize MPI environment
-    MPI_Finalize();
+    MPI_Finalize();`
 
 
 ### 2c. Evaluation plan - what and how will you measure and compare
