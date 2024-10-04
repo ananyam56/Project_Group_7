@@ -83,8 +83,11 @@ Gather sorted data to the root process (optional)
                0, MPI_COMM_WORLD);
 
 Finalize MPI environment
-    MPI_Finalize();```
+    MPI_Finalize();
+    
+```
 3. Merge Sort:
+
 ```Initialize MPI environment
    MPI_Init()
 
@@ -126,7 +129,8 @@ Function parallel_merge(A, P):
         For each pair of adjacent chunks:
             Merge the pair into one sorted chunk
         P = P / 2
-    Return A```
+    Return A
+```
 
 
 ### 2c. Evaluation plan - what and how will you measure and compare
