@@ -9,12 +9,13 @@
 4. Fourth: Veda Javalagi
 
 ## 2. Project topic (e.g., parallel sorting algorithms)
+Design and Analysis of Parellel Sorting Algorithms
 
 ### 2a. Brief project description (what algorithms will you be comparing and on what architectures)
 
-- Bitonic Sort:
+- Bitonic Sort (Abigail):
 - Sample Sort:
-- Merge Sort:
+- Merge Sort (Ananya): Merge sort is a divide-and-conquer algorithm. It recursively splits an array into 2 halves, sorts each half, and then merges the two sorted halves to produce a final sorted array. In the parallel implementation of merge sort, the array is divided amongst many processors and each processor sorts a portion of the array concurrently.
 - Radix Sort:
 
 ### 2b. Pseudocode for each parallel algorithm
