@@ -84,6 +84,49 @@ Gather sorted data to the root process (optional)
 
 Finalize MPI environment
     MPI_Finalize();`
+3. Merge Sort:
+Initialize MPI environment
+   MPI_Init()
+
+Get the rank (process ID) of each process and the total number of processes
+   rank = MPI_Comm_rank()
+   size = MPI_Comm_size()
+
+If rank is 0 (master process):
+    a. Divide the array A into P chunks, where P is the number of processes
+    b. Send a chunk of the array to each process (including itself)
+    MPI_Scatter(A, chunk_size, MPI_INT, local_chunk, chunk_size, MPI_INT, 0, MPI_COMM_WORLD)
+
+Each process sorts its local chunk using a sequential merge sort
+   local_chunk = merge_sort(local_chunk)
+
+Gather the sorted chunks from all processes back into the master process
+   MPI_Gather(local_chunk, chunk_size, MPI_INT, A, chunk_size, MPI_INT, 0, MPI_COMM_WORLD)
+
+If rank is 0 (master process):
+    a. Merge the P sorted chunks into the final sorted array
+    A = parallel_merge(A, P)
+
+Finalize the MPI environment
+   MPI_Finalize()
+
+// Sequential Merge Sort function
+Function merge_sort(A):
+    If length(A) <= 1:
+        Return A
+    Else:
+        Split A into two halves: left and right
+        left_sorted = merge_sort(left)
+        right_sorted = merge_sort(right)
+        Return merge(left_sorted, right_sorted)
+
+// Parallel Merge function (used to merge sorted chunks)
+Function parallel_merge(A, P):
+    While P > 1:
+        For each pair of adjacent chunks:
+            Merge the pair into one sorted chunk
+        P = P / 2
+    Return A
 
 
 ### 2c. Evaluation plan - what and how will you measure and compare
