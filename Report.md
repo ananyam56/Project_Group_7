@@ -1,12 +1,12 @@
 # CSCE 435 Group project
 
-## 0. Group number: 
+## 0. Group number: 7
 
 ## 1. Group members:
-1. First
-2. Second
-3. Third
-4. Fourth
+1. First: Ananya Maddali 
+2. Second: Jordyn Hamstra
+3. Third: Abigail Hunt
+4. Fourth: Veda Javalagi
 
 ## 2. Project topic (e.g., parallel sorting algorithms)
 
