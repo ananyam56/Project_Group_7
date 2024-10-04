@@ -9,12 +9,12 @@
 4. Fourth: Veda Javalagi
 
 ## 2. Project topic (e.g., parallel sorting algorithms)
-Design and Analysis of Parellel Sorting Algorithms
+Design and Analysis of Parallel Sorting Algorithms
 
 ### 2a. Brief project description (what algorithms will you be comparing and on what architectures)
 
 - Bitonic Sort (Abigail):
-- Sample Sort:
+- Sample Sort (Veda): This project involves the parallel implementation and evaluation of the Sample Sort algorithm, using MPI for inter-process communication. Sample Sort is a parallel sorting algorithm that divides data into partitions, sorting each partition locally, selecting a set of representative samples to determine partition boundaries, and redistributing data before performing a final merge. The algorithm will be tested on the Grace high-performance computing cluster
 - Merge Sort (Ananya): Merge sort is a divide-and-conquer algorithm. It recursively splits an array into 2 halves, sorts each half, and then merges the two sorted halves to produce a final sorted array. In the parallel implementation of merge sort, the array is divided amongst many processors and each processor sorts a portion of the array concurrently.
 - Radix Sort:
 
