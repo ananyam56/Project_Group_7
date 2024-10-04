@@ -88,32 +88,36 @@ Finalize MPI environment
 ```
 3. Merge Sort:
 
-```Initialize MPI environment
+```Initialize the MPI environment
    MPI_Init()
 
-Get the rank (process ID) of each process and the total number of processes
-   rank = MPI_Comm_rank()
-   size = MPI_Comm_size()
+Get the rank (process ID) of the current process and the total number of processes
+   rank = MPI_Comm_rank(MPI_COMM_WORLD)
+   size = MPI_Comm_size(MPI_COMM_WORLD)
 
-If rank is 0 (master process):
-    a. Divide the array A into P chunks, where P is the number of processes
-    b. Send a chunk of the array to each process (including itself)
-    MPI_Scatter(A, chunk_size, MPI_INT, local_chunk, chunk_size, MPI_INT, 0, MPI_COMM_WORLD)
+Determine the chunk of the array each process will handle
+   chunk_size = n / size   // Divide the array evenly among processes
 
-Each process sorts its local chunk using a sequential merge sort
+Allocate memory for the local_chunk each process will sort
+   local_chunk = allocate memory for chunk_size elements
+
+Use MPI_Scatter to distribute the data from process 0 to all other processes
+   MPI_Scatter(A, chunk_size, MPI_INT, local_chunk, chunk_size, MPI_INT, 0, MPI_COMM_WORLD)
+
+Each process performs a sequential Merge Sort on its local_chunk
    local_chunk = merge_sort(local_chunk)
 
-Gather the sorted chunks from all processes back into the master process
+Use MPI_Gather to collect the sorted chunks back to process 0
    MPI_Gather(local_chunk, chunk_size, MPI_INT, A, chunk_size, MPI_INT, 0, MPI_COMM_WORLD)
 
-If rank is 0 (master process):
-    a. Merge the P sorted chunks into the final sorted array
-    A = parallel_merge(A, P)
+On process 0, merge the sorted chunks to obtain the final sorted array
+   If rank == 0:
+      A = parallel_merge(A, size)
 
 Finalize the MPI environment
    MPI_Finalize()
 
-// Sequential Merge Sort function
+// Sequential Merge Sort function (for local chunk sorting)
 Function merge_sort(A):
     If length(A) <= 1:
         Return A
@@ -123,7 +127,7 @@ Function merge_sort(A):
         right_sorted = merge_sort(right)
         Return merge(left_sorted, right_sorted)
 
-// Parallel Merge function (used to merge sorted chunks)
+// Parallel Merge function (used to merge sorted chunks on process 0)
 Function parallel_merge(A, P):
     While P > 1:
         For each pair of adjacent chunks:
