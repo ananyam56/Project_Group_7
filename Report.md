@@ -16,7 +16,7 @@ Design and Analysis of Parallel Sorting Algorithms
 - Bitonic Sort (Abigail):
 - Sample Sort (Veda): This project involves the parallel implementation and evaluation of the Sample Sort algorithm, using MPI for inter-process communication. Sample Sort is a parallel sorting algorithm that divides data into partitions, sorting each partition locally, selecting a set of representative samples to determine partition boundaries, and redistributing data before performing a final merge. The algorithm will be tested on the Grace high-performance computing cluster.
 - Merge Sort (Ananya): Merge sort is a divide-and-conquer algorithm. It recursively splits an array into 2 halves, sorts each half, and then merges the two sorted halves to produce a final sorted array using MPI calls. In the parallel implementation of merge sort, the array is divided amongst many processors and each processor sorts a portion of the array concurrently. The algorithm will be tested on the Grace high-performance computing cluster.
-- Radix Sort: Radix sort sorts an array by sorting by each digits place starting with the ones place. It will iterate through the array as many times as there are digits in the largest value. Each iteration is done in parallel and then will be combined to produce a sorted array using MPI. The algorithm will be tested on the Grace high-performance computing cluster.
+- Radix Sort (Jordyn): Radix sort sorts an array by sorting by each digits place starting with the ones place. It will iterate through the array as many times as there are digits in the largest value. Each iteration is done in parallel and then will be combined to produce a sorted array using MPI. The algorithm will be tested on the Grace high-performance computing cluster.
 
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
@@ -135,7 +135,41 @@ Function parallel_merge(A, P):
         P = P / 2
     Return A
 ```
+4. Radix Sort:
 
+```
+// Initialize MPI environment
+MPI_Init()
+rank = MPI_Comm_rank()          // Get the rank of the process
+size = MPI_Comm_size()          // Get the total number of processes
+
+// Distribute the data among all processes
+local_data = distribute_data_evenly()  // Each process is responsible for reading a chunk of the data
+
+// Perform local radix sort on the local chunk of data
+for each digit from least significant to most significant do
+    count = count_digit_occurrences(local_data, digit)         // Count occurrences of each digit
+    prefix_sum = calculate_prefix_sum(count)                   // Create prefix sum based on counts
+    local_data = reorder_data(local_data, prefix_sum, digit)   // Reorder data based on the digit
+    
+    // Exchange sorted data between processes based on digit values
+    for each process i do
+        send_chunk = find_data_chunk_for_process(local_data, i)  // Determine the data chunk to send to process i
+        recv_chunk = MPI_Alltoall(send_chunk)                    // Exchange data chunks with all processes
+    end for
+    
+    // Merge received data
+    local_data = merge_and_sort(recv_chunk)
+end for
+
+// After the final iteration each process contains part of the sorted data
+
+// Combine the results into a single array
+final_data ← MPI_Allgather(local_data)
+
+// Finalize MPI environment
+MPI_Finalize()
+```
 
 ### 2c. Evaluation plan - what and how will you measure and compare
 - Input sizes, Input types
