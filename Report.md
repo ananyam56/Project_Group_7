@@ -13,14 +13,87 @@ Design and Analysis of Parallel Sorting Algorithms
 
 ### 2a. Brief project description (what algorithms will you be comparing and on what architectures)
 
-- Bitonic Sort (Abigail):
+- Bitonic Sort (Abigail): Bitonic sort is a parallel sorting algorithm that works by constructing a bitonic sequence - a sequence of numbers that first increases and then decreases. The sorting process involves recursively dividing a larger bitonic sequence into smaller bitonic sequences. The algorithm compares corresponding elements within these smaller sequences, swapping elements as necessary to sort them in ascending order. Finally, the algorithm merges these smaller sequences back together. The algorithm will be tested on the Grace high-performance computing cluster.
 - Sample Sort (Veda): This project involves the parallel implementation and evaluation of the Sample Sort algorithm, using MPI for inter-process communication. Sample Sort is a parallel sorting algorithm that divides data into partitions, sorting each partition locally, selecting a set of representative samples to determine partition boundaries, and redistributing data before performing a final merge. The algorithm will be tested on the Grace high-performance computing cluster.
 - Merge Sort (Ananya): Merge sort is a divide-and-conquer algorithm. It recursively splits an array into 2 halves, sorts each half, and then merges the two sorted halves to produce a final sorted array using MPI calls. In the parallel implementation of merge sort, the array is divided amongst many processors and each processor sorts a portion of the array concurrently. The algorithm will be tested on the Grace high-performance computing cluster.
 - Radix Sort (Jordyn): Radix sort sorts an array by sorting by each digits place starting with the ones place. It will iterate through the array as many times as there are digits in the largest value. Each iteration is done in parallel and then will be combined to produce a sorted array using MPI. The algorithm will be tested on the Grace high-performance computing cluster.
 
 ### 2b. Pseudocode for each parallel algorithm
 - For MPI programs, include MPI calls you will use to coordinate between processes
-2. Sample Sort: 
+  
+1. Bitonic Sort:
+   // Initialize MPI environment
+MPI_Init(&argc, &argv);
+MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);      
+
+// Generate or receive data on the root process (process 0)
+if rank == 0 then
+    data = GenerateData(total_data_size); // Create data to sort
+end if
+
+// Broadcast data size to all processes
+MPI_Bcast(&data_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+// Scatter data to all processes
+MPI_Scatter(data, data_size/num_procs, MPI_INT, 
+            local_data, data_size/num_procs, MPI_INT, 
+            0, MPI_COMM_WORLD);
+
+// Each process sorts its local data to create a bitonic sequence
+local_data = BitonicSort(local_data);
+
+// Bitonic merging
+for i=2 to num_procs do
+    j = data_size / num_procs; //Initialize j to the size of the data chunk
+    while j > 0 do // Use a while loop to decrement j to 1
+        // Merge with the next process based on current step
+        if rank % i == 0 then
+            // Prepare buffers for receiving data
+            recv_data = allocate_buffer_for(data_size/num_procs);
+            MPI_Sendrecv(local_data, data_size/num_procs, MPI_INT, rank + (data_size/num_procs), 0,
+                         recv_data, data_size/num_procs, MPI_INT, rank - (data_size/num_procs), 0);
+            // Merge local_data with recv_data
+            local_data = BitonicMerge(local_data, recv_data);
+        end if
+        j = j/2; // Halve j to reduce the size of the data chunk for the next iteration
+    end for
+end for
+
+// Gather the sorted data back to the root process
+MPI_Gather(local_data, data_size/num_procs, MPI_INT, 
+           sorted_data, data_size/num_procs, MPI_INT, 
+           0, MPI_COMM_WORLD);
+
+// If rank 0, output the final sorted array
+if rank == 0 then
+    Print(sorted_data); // Display or use sorted data
+end if
+
+// Finalize MPI environment
+MPI_Finalize();
+
+// Function to perform bitonic sort on local data
+BitonicSort(data)
+    if length(data) > 1 then
+        mid = length(data) / 2
+        BitonicSort(data[0..mid-1]); // Sort first half in ascending order
+        BitonicSort(data[mid..n-1]); // Sort second half in descending order
+        return data; // Combine sorted halves
+    end if
+    return data;
+
+// Function to merge two sorted arrays into one
+BitonicMerge(a, b)
+    n = length(a) + length(b)
+    for i from 0 to n/2 do
+        if a[i] > b[i] then
+            swap(a[i], b[i]); // Swap elements if out of order
+        end if
+    end for
+    return Combine(a, b); // Return combined sorted array
+
+3. Sample Sort: 
 ```Initialize MPI environment
    MPI_Init(&argc, &argv);
    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
