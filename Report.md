@@ -24,7 +24,8 @@ Design and Analysis of Parallel Sorting Algorithms
 - For MPI programs, include MPI calls you will use to coordinate between processes
   
 1. Bitonic Sort:
-   // Initialize MPI environment
+   ```
+// Initialize MPI environment
 MPI_Init(&argc, &argv);
 MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 MPI_Comm_rank(MPI_COMM_WORLD, &rank);      
@@ -94,8 +95,9 @@ BitonicMerge(a, b)
         end if
     end for
     return Combine(a, b); // Return combined sorted array
+```
 
-3. Sample Sort: 
+2. Sample Sort: 
 ```Initialize MPI environment
    MPI_Init(&argc, &argv);
    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
