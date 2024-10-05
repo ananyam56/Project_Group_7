@@ -8,6 +8,8 @@
 3. Third: Abigail Hunt
 4. Fourth: Veda Javalagi
 
+Communication Style: We plan on communicating regularly on a text group chat, and we will utilize discord collaborate when we cannot meet in person. 
+
 ## 2. Project topic (e.g., parallel sorting algorithms)
 Design and Analysis of Parallel Sorting Algorithms
 
