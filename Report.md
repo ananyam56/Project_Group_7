@@ -327,6 +327,7 @@ CALI_MARK_END("comp");
 └─ 0.440 correctness_check
 ```
 
+### **Calltrees for Each Algorithm**:
 ```
 # MPI Bitonic Sort
 0.540 main
