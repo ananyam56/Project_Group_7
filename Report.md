@@ -346,7 +346,7 @@ CALI_MARK_END("comp");
 │  └─ 0.011 comp_large
 ├─ 0.000 correctness_check
 └─ 0.000 data_init_runtime
-```
+
 # MPI Merge Sort
 8.7333 main
 ├─ 0.0003 MPI_Init
@@ -365,6 +365,7 @@ CALI_MARK_END("comp");
 ├─ 0.0000 MPI_Initialized
 ├─ 0.0000 MPI_Finalized
 └─ 1.2748 MPI_Comm_dup
+```
 
 
 ### 3b. Collect Metadata
