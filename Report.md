@@ -347,6 +347,7 @@ CALI_MARK_END("comp");
 ├─ 0.000 correctness_check
 └─ 0.000 data_init_runtime
 
+# MPI Merge Sort
 1.0917 main
 ├─ 0.0000 MPI_Init
 ├─ 0.0024 MPI_Bcast
