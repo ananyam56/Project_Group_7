@@ -95,14 +95,23 @@ int main(int argc, char *argv[]) {
     // Root process initializes data
     if (rank == 0) {
         CALI_MARK_BEGIN("data_init_runtime");
-        int* full_data = new int[array_size];
-        for (int i = 0; i < array_size; i++) {
+        double* full_data = new double[sizeOfInput];
+        for (int i = 0; i < sizeOfInput; i++) {
             if (input_type == "random") {
                 full_data[i] = rand() % 10000;
-            } else if (input_type == "sorted") {
+            } else if (input_type == "sorted" || input_type == "perturbed" ) {
                 full_data[i] = i;
             } else if (input_type == "reverse") {
-                full_data[i] = array_size - i;
+                full_data[i] = sizeOfInput - i;
+            }
+        }
+        if (input_type == "perturbed") {
+            int num_perturbed = sizeOfInput / 100;  // 1% of the elements
+            for (int i = 0; i < num_perturbed; i++) {
+                // Choose two random indices to swap
+                int idx1 = rand() % sizeOfInput;
+                int idx2 = rand() % sizeOfInput;
+                std::swap(full_data[idx1], full_data[idx2]);
             }
         }
 
