@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < sizeOfInput; i++) {
             if (input_type == "random") {
                 full_data[i] = rand() % 10000;
-            } else if (input_type == "sorted") {
+            } else if (input_type == "sorted" || input_type == "perturbed") {
                 full_data[i] = i;
             } else if (input_type == "reverse") {
                 full_data[i] = sizeOfInput - i;
