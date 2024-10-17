@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     if (argc != 4) {
         if (rank == 0) {
-            printf("\nPlease provide the algorithm, input size (power of 2), and input type as command line arguments.\n");
+            printf("\nPlease provide the algorithm, input size, and input type as command line arguments.\n");
         }
         MPI_Abort(MPI_COMM_WORLD, 1);
         return 0;
