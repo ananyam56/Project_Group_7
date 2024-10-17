@@ -17,13 +17,36 @@
 #
 ##First Executable Line
 #
-array_size=$1
-processes=$2
+algorithm=$1
+array_size=$2
+processes=$3
+input_type=$4
 
 module load intel/2020b       # load Intel software stack
 module load CMake/3.12.1
 module load GCCcore/8.3.0
 
+# Determine which algorithm executable to run
+case $algorithm in
+  "sample")
+    exec_name="sample_sort"
+    ;;
+  "merge")
+    exec_name="mergesort"
+    ;;
+  "radix")
+    exec_name="radix"
+    ;;
+  "bitonic")
+    exec_name="bitonic"
+    ;;
+  *)
+    echo "Invalid algorithm selected. Choose from 'sample', 'merge', or 'bitonic'."
+    exit 1
+    ;;
+esac
+
+# Set up Caliper configuration for profiling with MPI -  ex: sbatch mpi.grace_job sample 16777216 4 random
 CALI_CONFIG="spot(output=p${processes}-a${array_size}.cali, \
     time.variance,profile.mpi)" \
-mpirun -np $processes ./mergesort $array_size
+mpirun -np $processes ./$exec_name $array_size $input_type
