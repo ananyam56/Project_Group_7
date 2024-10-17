@@ -415,6 +415,11 @@ adiak::value("implementation_source", implementation_source); // Where you got t
 They will show up in the `Thicket.metadata` if the caliper file is read into Thicket.
 
 ### **See the `Builds/` directory to find the correct Caliper configurations to get the performance metrics.** They will show up in the `Thicket.dataframe` when the Caliper file is read into Thicket.
+
+
+### Implementation Descriptions for Each Algorithm
+- Bitonic Sort (Abigail): The bitonic sort algorithm is implemented using MPI for parallelization, distributing data across multiple process. Each process sorts its local portion of the array independently, and then processes exchange data to perform parallel bitonic merging, leading to a fully sorted array. The master process handles data initialization, distribution, and gatherinf the sorted results from all processes. During merging, each process exchanges data with a designated partner, ensuring the correct order is maintained across the whole array.
+
 ## 4. Performance evaluation
 
 Include detailed analysis of computation performance, communication performance. 
