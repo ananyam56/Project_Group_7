@@ -24,7 +24,7 @@ int main (int argc, char *argv[])
     if (argc == 4) {
         // get algorithm
         std::string algorithm = argv[0];
-        if (algorithm != "bitonic") && (algorithm != "sample") && (algorithm != "merge") && (algorithm != "radix") {
+        if (algorithm != "bitonic" && algorithm != "sample" && algorithm != "merge" && algorithm != "radix") {
             printf("\n The algorithm must be \'bitonic\', \'sample\', \'merge\', or \'radix\'.");
             return 0;
         }
@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
 
         // get type of input array
         std::string inputType = argv[0];
-        if (algorithm != "sorted") && (algorithm != "random") && (algorithm != "reverse") && (algorithm != "perturbed") {
+        if (algorithm != "sorted" && algorithm != "random" && algorithm != "reverse" && algorithm != "perturbed") {
             printf("\n The input type must be \'sorted\', \'random\', \'reverse\', or \'perturbed\'.");
             return 0;
         }
