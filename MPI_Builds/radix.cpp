@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 
         // Scatter data
         CALI_MARK_BEGIN("comm");
-        MPI_Scatterv(full_data, send_counts, displacement, MPI_DOUBLE, local_data, local_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Scatterv(full_data, send_counts, displacement, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
         CALI_MARK_END("comm");
 
         delete[] full_data;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 
     } else {
         // Non-root processes receive data
-        MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, local_data, local_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Scatterv(NULL, NULL, NULL, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
     // Local radix sort
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
     // Gather the sorted segments back to the root
     int* sorted_data = nullptr;
     if (rank == 0) {
-        sorted_data = new int[size];
+        sorted_data = new int[sizeOfInput];
     }
 
     // Gather sorted local arrays to root
