@@ -176,7 +176,9 @@ int main(int argc, char *argv[]) {
 
     // Local radix sort
     CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_large"); 
     radix_sort(local_data, local_size);
+    CALI_MARK_END("comp_large");
     CALI_MARK_END("comp");
 
     // Gather the sorted segments back to the root
@@ -193,6 +195,7 @@ int main(int argc, char *argv[]) {
 
     // Calculate displacements for gatherv
     CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_small");
     int* recv_displacement = new int[size];
     if (rank == 0) {
         recv_displacement[0] = 0;
@@ -200,6 +203,7 @@ int main(int argc, char *argv[]) {
             recv_displacement[i] = recv_displacement[i - 1] + recv_counts[i - 1];
         }
     }
+    CALI_MARK_END("comp_small");
     CALI_MARK_END("comp");
 
     CALI_MARK_BEGIN("comm");
@@ -215,6 +219,7 @@ int main(int argc, char *argv[]) {
         int current_size = 0; // Size of the current merged array
 
         CALI_MARK_BEGIN("comp");
+        CALI_MARK_BEGIN("comp_large");
         // Merge each segment into final_sorted_data
         for (int i = 0; i < size; i++) {
             int segment_size = recv_counts[i]; // Size of the i-th segment
@@ -224,6 +229,7 @@ int main(int argc, char *argv[]) {
             merge(final_sorted_data, current_size, segment_data, segment_size, final_sorted_data);
             current_size += segment_size; // Update the size of the merged array
         }
+        CALI_MARK_END("comp_large");
         CALI_MARK_END("comp");
 
         // Verify correctness
