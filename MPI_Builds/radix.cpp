@@ -137,6 +137,15 @@ int main(int argc, char *argv[]) {
                 full_data[i] = sizeOfInput - i;
             }
         }
+        if (input_type == "perturbed") {
+            int num_perturbed = sizeOfInput / 100;  // 1% of the elements
+            for (int i = 0; i < num_perturbed; i++) {
+                // Choose two random indices to swap
+                int idx1 = rand() % sizeOfInput;
+                int idx2 = rand() % sizeOfInput;
+                std::swap(full_data[idx1], full_data[idx2]);
+            }
+        }
 
         int* send_counts = new int[size];
         int* displacement = new int[size];
