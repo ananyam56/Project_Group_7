@@ -148,15 +148,17 @@ int main(int argc, char *argv[]) {
     // Create caliper ConfigManager object
     cali::ConfigManager mgr;
     mgr.start();
-    
+      
     int sizeOfArray;
-    if (argc == 2) {
-        sizeOfArray = atoi(argv[1]);
+    if (argc == 4) {
+        std::string algorithm = argv[1];
+        sizeOfArray = atoi(argv[2]);
+        std::string input_type = argv[3];
     } else {
         printf("\n Please provide the size of the array");
         return 0;
     }
-
+    
     int num_procs, rank;
     int *data = NULL; //pointer to hold the entire array
     int local_size; //size of local section of array for each process
