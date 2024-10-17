@@ -1,53 +1,230 @@
-/******************************************************************************
-* FILE: mpi_algos.cpp
-* DESCRIPTION:  
-*   MPI Algorithms
-*   In this code, the master task distributes a matrix multiply
-*   operation to numtasks-1 worker tasks.
-* AUTHORS: Abigail Hunt, Ananya Maddali, Jordyn Hamstra, Veda Javalagi
-* LAST REVISED: 10/12/2024
-******************************************************************************/
 #include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
+#include <algorithm>
+#include <numeric>
 #include <math.h>
-#include <string>
-
 #include <caliper/cali.h>
 #include <caliper/cali-manager.h>
 #include <adiak.hpp>
+#include <string>
+#include <cstring>
 
-// parameters: 1) algorithm, 2) input size, 3) input type, 4) number of processes
-int main (int argc, char *argv[])
-{
-    int sizeOfInput;
-    if (argc == 4) {
-        // get algorithm
-        std::string algorithm = argv[0];
-        if (algorithm != "bitonic" && algorithm != "sample" && algorithm != "merge" && algorithm != "radix") {
-            printf("\n The algorithm must be \'bitonic\', \'sample\', \'merge\', or \'radix\'.");
-            return 0;
+// Helper function to get the digit value for radix sort
+int get_digit(int value, int exp) {
+    return ((int)value / exp) % 10;
+}
+
+// Check if the array is sorted
+bool correctness_check(int* data, int size) {
+    for (int i = 1; i < size; i++) {
+        if (data[i - 1] > data[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Local radix sort using counting sort for each digit
+void radix_sort(int* data, int size) {
+    int max_val = *std::max_element(data, data + size);
+
+    // Perform counting sort for each digit
+    for (int exp = 1; max_val / exp > 0; exp *= 10) {
+        std::vector<int> count(10, 0);
+        std::vector<int> output(size);
+
+        for (int i = 0; i < size; i++) {
+            int digit = get_digit(data[i], exp);
+            count[digit]++;
         }
 
-        // get size of the input array
-        std::string sizeInput = argv[1];
-        if (sizeInput.substr(0, 2) == "2^") {
-            sizeOfInput = pow(2, stoi(sizeInput.substr(3)));
+        for (int i = 1; i < 10; i++) {
+            count[i] += count[i - 1];
+        }
+
+        for (int i = size - 1; i >= 0; i--) {
+            int digit = get_digit(data[i], exp);
+            output[count[digit] - 1] = data[i];
+            count[digit]--;
+        }
+
+        std::memcpy(data, output.data(), size * sizeof(int));
+    }
+}
+
+// Merge two sorted arrays into one sorted array
+void merge(int* left, int left_size, int* right, int right_size, int* result) {
+    int i = 0, j = 0, k = 0;
+
+    // Merge the two sorted arrays
+    while (i < left_size && j < right_size) {
+        if (left[i] < right[j]) {
+            result[k++] = left[i++];
         } else {
-            printf("\n The size of the input array must be in the format \'2^x\'.");
-            return 0;
+            result[k++] = right[j++];
         }
+    }
 
-        // get type of input array
-        std::string inputType = argv[0];
-        if (algorithm != "sorted" && algorithm != "random" && algorithm != "reverse" && algorithm != "perturbed") {
-            printf("\n The input type must be \'sorted\', \'random\', \'reverse\', or \'perturbed\'.");
-            return 0;
+    // Copy remaining elements of left[]
+    while (i < left_size) {
+        result[k++] = left[i++];
+    }
+
+    // Copy remaining elements of right[]
+    while (j < right_size) {
+        result[k++] = right[j++];
+    }
+}
+
+
+int main(int argc, char *argv[]) {
+    CALI_MARK_BEGIN("main");
+    MPI_Init(&argc, &argv);
+
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (argc != 4) {
+        if (rank == 0) {
+            printf("Please provide the algorithm, input size (power of 2), and input type as command line arguments.\n");
         }
-    } else {
-        printf("\n Please provide the the algorithm to use, the size of the input array, the type of input array and the number of processes all as command line arguments.");
+        MPI_Abort(MPI_COMM_WORLD, 1);
         return 0;
     }
 
-    double input[sizeOfInput];
+    std::string algorithm = argv[1];
+    int sizeOfInput = pow(2, atoi(argv[2]));
+    std::string input_type = argv[3];
+
+    // Set up Adiak 
+    adiak::init(NULL);
+    adiak::launchdate();
+    adiak::libraries();
+    adiak::cmdline();
+    adiak::clustername();
+    adiak::value("algorithm", algorithm);
+    adiak::value("programming_model", "mpi");
+    adiak::value("data_type", "double");
+    adiak::value("size_of_data_type", sizeof(double));
+    adiak::value("input_size", sizeOfInput);
+    adiak::value("input_type", input_type);
+    adiak::value("num_procs", size);
+    adiak::value("scalability", "strong");  // or "weak" depending on the experiment
+    adiak::value("group_num", 7); 
+    adiak::value("implementation_source", "online");
+
+    // Data initialization
+    int local_size = sizeOfInput / size;
+    int remainder = sizeOfInput % size;
+    if (rank < remainder) {
+        local_size++;
+    }
+    int* local_data = new int[local_size];
+
+    if (rank == 0) {
+        // Root process initializes data
+        CALI_MARK_BEGIN("data_init_runtime");
+        int* full_data = new int[sizeOfInput];
+        for (int i = 0; i < sizeOfInput; i++) {
+            if (input_type == "random") {
+                full_data[i] = rand() % 10000;
+            } else if (input_type == "sorted") {
+                full_data[i] = i;
+            } else if (input_type == "reverse") {
+                full_data[i] = sizeOfInput - i;
+            }
+        }
+
+        int* send_counts = new int[size];
+        int* displacement = new int[size];
+        int offset = 0;
+        for (int i = 0; i < size; i++) {
+            send_counts[i] = sizeOfInput / size + (i < remainder ? 1 : 0);
+            displacement[i] = offset;
+            offset += send_counts[i];
+        }
+
+        CALI_MARK_END("data_init_runtime");
+
+        // Scatter data
+        CALI_MARK_BEGIN("comm");
+        MPI_Scatterv(full_data, send_counts, displacement, MPI_DOUBLE, local_data, local_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm");
+
+        delete[] full_data;
+        delete[] send_counts;
+        delete[] displacement;
+
+    } else {
+        // Non-root processes receive data
+        MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, local_data, local_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    }
+
+    // Local radix sort
+    CALI_MARK_BEGIN("comp");
+    radix_sort(local_data, local_size);
+    CALI_MARK_END("comp");  
+
+    // Gather the sorted segments back to the root
+    int* sorted_data = nullptr;
+    if (rank == 0) {
+        sorted_data = new int[size];
+    }
+
+    // Gather sorted local arrays to root
+    int* recv_counts = new int[size];
+    MPI_Gather(&local_size, 1, MPI_INT, recv_counts, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // Calculate displacements for gatherv
+    int* recv_displacement = new int[size];
+    if (rank == 0) {
+        recv_displacement[0] = 0;
+        for (int i = 1; i < size; i++) {
+            recv_displacement[i] = recv_displacement[i - 1] + recv_counts[i - 1];
+        }
+    }
+
+    // Gather sorted local arrays to root
+    MPI_Gatherv(local_data, local_size, MPI_INT, sorted_data, recv_counts, recv_displacement, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // Merge sorted data in the root process
+    if (rank == 0) {
+        int* final_sorted_data = new int[sizeOfInput];
+
+        // sorted_data contains sorted segments from all processes
+        int current_size = 0; // Size of the current merged array
+
+        // Merge each segment into final_sorted_data
+        for (int i = 0; i < size; i++) {
+            int segment_size = recv_counts[i]; // Size of the i-th segment
+            int* segment_data = sorted_data + recv_displacement[i]; // Pointer to the i-th segment
+            
+            // Merge the current segment with the already merged data
+            merge(final_sorted_data, current_size, segment_data, segment_size, final_sorted_data);
+            current_size += segment_size; // Update the size of the merged array
+        }
+
+        // Verify correctness
+        if (correctness_check(final_sorted_data, sizeOfInput)) {
+            printf("Data is sorted correctly!\n");
+        } else {
+            printf("Data is NOT sorted correctly!\n");
+        }
+
+        delete[] final_sorted_data;
+        delete[] sorted_data;
+    }
+
+    // Clean up
+    delete[] local_data;
+    delete[] recv_counts;
+    delete[] recv_displacement;
+
+    // Finalize MPI
+    CALI_MARK_END("main");
+    MPI_Finalize();
+    return 0;
 }
