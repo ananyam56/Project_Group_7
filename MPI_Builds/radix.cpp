@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::string algorithm = argv[1];
-    int sizeOfInput = pow(2, atoi(argv[2]));
+    int sizeOfInput = atoi(argv[2]);
     std::string input_type = argv[3];
 
     // Set up Adiak 
@@ -160,15 +160,18 @@ int main(int argc, char *argv[]) {
 
     } else {
         // Non-root processes receive data
+        CALI_MARK_BEGIN("comm");
         MPI_Scatterv(NULL, NULL, NULL, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm");
     }
 
     // Local radix sort
     CALI_MARK_BEGIN("comp");
     radix_sort(local_data, local_size);
-    CALI_MARK_END("comp");  
+    CALI_MARK_END("comp");
 
     // Gather the sorted segments back to the root
+    CALI_MARK_BEGIN("comm");
     int* sorted_data = nullptr;
     if (rank == 0) {
         sorted_data = new int[sizeOfInput];
@@ -177,8 +180,10 @@ int main(int argc, char *argv[]) {
     // Gather sorted local arrays to root
     int* recv_counts = new int[size];
     MPI_Gather(&local_size, 1, MPI_INT, recv_counts, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END("comm");
 
     // Calculate displacements for gatherv
+    CALI_MARK_BEGIN("comp");
     int* recv_displacement = new int[size];
     if (rank == 0) {
         recv_displacement[0] = 0;
@@ -186,9 +191,12 @@ int main(int argc, char *argv[]) {
             recv_displacement[i] = recv_displacement[i - 1] + recv_counts[i - 1];
         }
     }
+    CALI_MARK_END("comp");
 
+    CALI_MARK_BEGIN("comm");
     // Gather sorted local arrays to root
     MPI_Gatherv(local_data, local_size, MPI_INT, sorted_data, recv_counts, recv_displacement, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END("comm");
 
     // Merge sorted data in the root process
     if (rank == 0) {
@@ -197,6 +205,7 @@ int main(int argc, char *argv[]) {
         // sorted_data contains sorted segments from all processes
         int current_size = 0; // Size of the current merged array
 
+        CALI_MARK_BEGIN("comp");
         // Merge each segment into final_sorted_data
         for (int i = 0; i < size; i++) {
             int segment_size = recv_counts[i]; // Size of the i-th segment
@@ -206,13 +215,16 @@ int main(int argc, char *argv[]) {
             merge(final_sorted_data, current_size, segment_data, segment_size, final_sorted_data);
             current_size += segment_size; // Update the size of the merged array
         }
+        CALI_MARK_END("comp");
 
         // Verify correctness
+        CALI_MARK_BEGIN("correctness_check");
         if (correctness_check(final_sorted_data, sizeOfInput)) {
             printf("Data is sorted correctly!\n");
         } else {
             printf("Data is NOT sorted correctly!\n");
         }
+        CALI_MARK_END("correctness_check");
 
         delete[] final_sorted_data;
         delete[] sorted_data;
@@ -224,7 +236,7 @@ int main(int argc, char *argv[]) {
     delete[] recv_displacement;
 
     // Finalize MPI
-    CALI_MARK_END("main");
     MPI_Finalize();
+    CALI_MARK_END("main");
     return 0;
 }
