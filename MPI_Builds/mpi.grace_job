@@ -49,4 +49,4 @@ esac
 # Set up Caliper configuration for profiling with MPI -  ex: sbatch mpi.grace_job sample 16777216 4 random
 CALI_CONFIG="spot(output=p${processes}-a${array_size}.cali, \
     time.variance,profile.mpi)" \
-mpirun -np $processes ./$exec_name $array_size $input_type
+mpirun -np $processes ./$exec_name $algorithm $array_size $input_type
