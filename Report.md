@@ -418,6 +418,7 @@ They will show up in the `Thicket.metadata` if the caliper file is read into Thi
 
 ### Implementation Descriptions for Each Algorithm
 - Bitonic Sort (Abigail): The bitonic sort algorithm is implemented using MPI for parallelization, distributing data across multiple process. Each process sorts its local portion of the array independently, and then processes exchange data to perform parallel bitonic merging, leading to a fully sorted array. The master process handles data initialization, distribution, and gatherinf the sorted results from all processes. During merging, each process exchanges data with a designated partner, ensuring the correct order is maintained across the whole array.
+- Sample Sort (Veda): The code implements a parallel sample sort algorithm using MPI. After initializing MPI, the root process generates data and distributes it across processes. Each process locally sorts its portion of the data and selects splitters, which are gathered by the root process to determine global splitters. Based on these, data is redistributed among processes, followed by a final local sort. The root process gathers the sorted data to check for correctness, and the program concludes by finalizing MPI. Caliper markers are used throughout to profile the performance of the algorithm.
 
 ## 4. Performance evaluation
 
