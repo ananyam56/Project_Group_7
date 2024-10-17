@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::string algorithm = argv[1];
-    int sizeOfInput = pow(2, atoi(argv[2]));
+    int sizeOfInput = atoi(argv[2]);
     std::string input_type = argv[3];
 
     // Set up Adiak 
