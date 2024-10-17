@@ -160,7 +160,9 @@ int main(int argc, char *argv[]) {
 
         // Scatter data
         CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_large");
         MPI_Scatterv(full_data, send_counts, displacement, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
 
         delete[] full_data;
@@ -170,7 +172,9 @@ int main(int argc, char *argv[]) {
     } else {
         // Non-root processes receive data
         CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_large");
         MPI_Scatterv(NULL, NULL, NULL, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
     }
 
@@ -183,6 +187,7 @@ int main(int argc, char *argv[]) {
 
     // Gather the sorted segments back to the root
     CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_small");
     int* sorted_data = nullptr;
     if (rank == 0) {
         sorted_data = new int[sizeOfInput];
@@ -191,6 +196,7 @@ int main(int argc, char *argv[]) {
     // Gather sorted local arrays to root
     int* recv_counts = new int[size];
     MPI_Gather(&local_size, 1, MPI_INT, recv_counts, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END("comm_small"); 
     CALI_MARK_END("comm");
 
     // Calculate displacements for gatherv
@@ -206,9 +212,11 @@ int main(int argc, char *argv[]) {
     CALI_MARK_END("comp_small");
     CALI_MARK_END("comp");
 
-    CALI_MARK_BEGIN("comm");
     // Gather sorted local arrays to root
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     MPI_Gatherv(local_data, local_size, MPI_INT, sorted_data, recv_counts, recv_displacement, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END("comm_large");
     CALI_MARK_END("comm");
 
     // Merge sorted data in the root process
