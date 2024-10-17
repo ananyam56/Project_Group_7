@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::string algorithm = argv[1];
-    int sizeOfInput = pow(2, atoi(argv[2]));
+    int sizeOfInput = atoi(argv[2]);
     std::string input_type = argv[3];
 
     // Set up Adiak 
@@ -57,7 +57,6 @@ int main(int argc, char *argv[]) {
     adiak::value("group_num", 7); 
     adiak::value("implementation_source", "online");
 
-    // CALI_MARK_BEGIN("main");
 
     // Data initialization
     int local_size = sizeOfInput / size;
@@ -249,8 +248,7 @@ int main(int argc, char *argv[]) {
 
     // Finalize MPI and clean up
     delete[] local_data;
-
-    CALI_MARK_END("main");
     MPI_Finalize();
+    CALI_MARK_END("main");
     return 0;
 }
