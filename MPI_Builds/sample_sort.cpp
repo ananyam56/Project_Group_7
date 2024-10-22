@@ -28,6 +28,12 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    // // Time variables
+    // double start_time, end_time, local_time, global_min_time, global_max_time, total_time, avg_time, variance, global_sum_time, local_sum_sq, global_sum_sq;
+
+    // // Start timer
+    // start_time = MPI_Wtime();  // Record start time for each rank
+
     if (argc != 4) {
         if (rank == 0) {
             printf("\nPlease provide the algorithm, input size, and input type as command line arguments.\n");
@@ -37,7 +43,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::string algorithm = argv[1];
-    int sizeOfInput = atoi(argv[2]);
+    int sizeOfInput =  pow(2, atoi(argv[2]));
     std::string input_type = argv[3];
 
     // Set up Adiak 
@@ -56,7 +62,6 @@ int main(int argc, char *argv[]) {
     adiak::value("scalability", "strong");  // or "weak" depending on the experiment
     adiak::value("group_num", 7); 
     adiak::value("implementation_source", "online");
-
 
     // Data initialization
     int local_size = sizeOfInput / size;
@@ -110,13 +115,11 @@ int main(int argc, char *argv[]) {
         delete[] displs;
 
     } else {
-
         CALI_MARK_BEGIN("comm");
         CALI_MARK_BEGIN("comm_large");
         MPI_Scatterv(NULL, NULL, NULL, MPI_DOUBLE, local_data, local_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
-
     }
 
     //Local sorting
@@ -124,7 +127,7 @@ int main(int argc, char *argv[]) {
     CALI_MARK_BEGIN("comp_large");  
     std::sort(local_data, local_data + local_size);
     CALI_MARK_END("comp_large");
-    CALI_MARK_END("comp");  
+    CALI_MARK_END("comp");
 
     //Local splitters and communication
     CALI_MARK_BEGIN("comm");  
@@ -134,7 +137,6 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < num_samples; i++) {
         local_splitters[i] = local_data[(i + 1) * local_size / size];
     }
-    
 
     // Gather local splitters at root
     std::vector<double> all_splitters;
@@ -145,7 +147,6 @@ int main(int argc, char *argv[]) {
     MPI_Gather(local_splitters.data(), num_samples, MPI_DOUBLE, all_splitters.data(), num_samples, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     CALI_MARK_END("comm_small");  
     CALI_MARK_END("comm");
-
 
     // Get global splitters at root and broadcast
     CALI_MARK_BEGIN("comp");
@@ -164,7 +165,7 @@ int main(int argc, char *argv[]) {
     CALI_MARK_BEGIN("comm_small"); 
     MPI_Bcast(global_splitters.data(), num_samples, MPI_DOUBLE, 0, MPI_COMM_WORLD); // broadcasting splitters
     CALI_MARK_END("comm_small");
- 
+
     // Redistribute data based on global splitters
     std::vector<int> send_counts(size, 0);
     std::vector<int> send_offsets(size, 0);
@@ -190,18 +191,15 @@ int main(int argc, char *argv[]) {
         recv_offsets[i] = recv_offsets[i - 1] + recv_counts[i - 1];
     }
 
-    // This is a large communication task
     CALI_MARK_BEGIN("comm_large");
     MPI_Alltoallv(local_data, send_counts.data(), send_offsets.data(), MPI_DOUBLE,
                 recv_data.data(), recv_counts.data(), recv_offsets.data(), MPI_DOUBLE, MPI_COMM_WORLD);
     CALI_MARK_END("comm_large");
-
-
     CALI_MARK_END("comm");
 
     // Sort received data
     CALI_MARK_BEGIN("comp");
-    CALI_MARK_BEGIN("comp_large");  // Sort large portion (received data)
+    CALI_MARK_BEGIN("comp_large");
     std::sort(recv_data.begin(), recv_data.end());
     CALI_MARK_END("comp_large");
     CALI_MARK_END("comp");
@@ -213,7 +211,6 @@ int main(int argc, char *argv[]) {
         int total_elements = 0;
         int offset = 0;
 
-        // Mark communication for gathering small amounts of data
         CALI_MARK_BEGIN("comm");
         CALI_MARK_BEGIN("comm_small");
         MPI_Gather(&total_recv_size, 1, MPI_INT, recv_counts_root.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -227,13 +224,11 @@ int main(int argc, char *argv[]) {
 
         std::vector<double> full_data(total_elements);
 
-        // Mark communication for gathering large amounts of data
         CALI_MARK_BEGIN("comm_large");
         MPI_Gatherv(recv_data.data(), total_recv_size, MPI_DOUBLE, full_data.data(), recv_counts_root.data(), displs_root.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
         CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
 
-        // Mark correctness check
         CALI_MARK_BEGIN("correctness_check");
         if (correctness_check(full_data.data(), total_elements)) {
             printf("Data is sorted correctly.\n");
@@ -242,7 +237,6 @@ int main(int argc, char *argv[]) {
         }
         CALI_MARK_END("correctness_check");
     } else {
-        // Non-root processes still perform communication
         CALI_MARK_BEGIN("comm");
         CALI_MARK_BEGIN("comm_small");
         MPI_Gather(&total_recv_size, 1, MPI_INT, nullptr, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -254,6 +248,33 @@ int main(int argc, char *argv[]) {
         CALI_MARK_END("comm");
     }
 
+    // // End timer and calculate local time
+    // end_time = MPI_Wtime();  // Record end time
+    // local_time = end_time - start_time;  // Time spent by this rank
+
+    // // Record the min time/rank across all ranks
+    // MPI_Reduce(&local_time, &global_min_time, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+
+    // // Record the max time/rank across all ranks
+    // MPI_Reduce(&local_time, &global_max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    // // Sum all local times to calculate the average time/rank and total time
+    // MPI_Reduce(&local_time, &global_sum_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    // avg_time = global_sum_time / size;  // Only root will calculate the average
+
+    // // Calculate variance: sum of squares of differences from the average
+    // local_sum_sq = (local_time - avg_time) * (local_time - avg_time);
+    // MPI_Reduce(&local_sum_sq, &global_sum_sq, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    // variance = global_sum_sq / size;  // Only root will calculate variance
+
+    // // Root process prints the performance metrics
+    // if (rank == 0) {
+    //     printf("Min time/rank: %f\n", global_min_time);
+    //     printf("Max time/rank: %f\n", global_max_time);
+    //     printf("Avg time/rank: %f\n", avg_time);
+    //     printf("Total time: %f\n", global_sum_time);
+    //     printf("Variance in time/rank: %f\n", variance);
+    // }
 
     // Finalize MPI and clean up
     delete[] local_data;
