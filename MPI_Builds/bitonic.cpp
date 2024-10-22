@@ -1,10 +1,16 @@
-/******************************************************************************
+/****************************************************************************** 
 * FILE: bitonic.cpp
+
 * DESCRIPTION:  
 *  This program implements the Bitonic Sort algorithm using MPI for parallelization.
-*  The data is distribtued across multiple processes, where each process sorts its local        portion of the array using the bitonic sort algorithm. Then, the processes communicate to    perform parallel bitonic merging, resulting in a fully sorted array. The master process      initiates the sorting, distributes data, and gathers the sorted portions from all            processes to produce the final sorted array.
+*  The data is distribtued across multiple processes, where each process sorts its local    
+*  portion of the array using the bitonic sort algorithm. Then, the processes communicate to
+*  perform parallel bitonic merging, resulting in a fully sorted array. The master process  
+*  initiates the sorting, distributes data, and gathers the sorted portions from all        
+*  processes to produce the final sorted array.
+
 * AUTHOR: Abigail Hunt
-* LAST REVISED: 10/15/2024
+* LAST REVISED: 10/21/2024
 ******************************************************************************/
 
 #include "mpi.h"
@@ -12,7 +18,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <limits.h>
-#include <algorithm> // Included for std::is_sorted
+#include <vector>       
+#include <algorithm>
 
 #include <caliper/cali.h>
 #include <caliper/cali-manager.h>
@@ -23,233 +30,201 @@
 #define DESCENDING 0
 
 /* Define Caliper region names */
-  const char* data_init_runtime = "data_init_runtime";
-  const char* correctness_check = "correctness_check";
-  const char* comm = "comm";
-  const char* comm_small = "comm_small";
-  const char* comm_large = "comm_large";
-  const char* comp = "comp";
-  const char* comp_small = "comp_small";
-  const char* comp_large = "comp_large";
+const char* data_init_runtime = "data_init_runtime";
+const char* correctness_check = "correctness_check";
+const char* comm = "comm";
+const char* comm_small = "comm_small";
+const char* comm_large = "comm_large";
+const char* comp = "comp";
+const char* comp_small = "comp_small";
+const char* comp_large = "comp_large";
 
-// Function to compare and swap elements based on the direction
-void swap(int *array, int i, int j, int dir) {
-    if ((dir == ASCENDING && array[i] > array[j]) || 
-        (dir == DESCENDING && array[i] < array[j])) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-}
+void parallelBitonicSort(std::vector<int>& local_array, int partner, int rank, int local_size, bool direction) {
+    //MPI_Status status;
+    std::vector<int> partner_array(local_size);
 
-//Function to perform bitonic merge, merging two halves such that
-  // In ASCENDING order, elements in the first half are smaller than or equal to those in the     second half
-  // In DESCENDING order, elements in the first half are larger than or equal to those in the     second half
-void bitonicMerge(int *array, int low, int count, int dir) {
-    if (count > 1) {
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN(comm_large);
+    MPI_Sendrecv(local_array.data(), local_size, MPI_INT, partner, 0,partner_array.data(), local_size, MPI_INT, partner, 0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    CALI_MARK_END(comm_large);
+    CALI_MARK_END(comm);
+
+    CALI_MARK_BEGIN(comp);
+    CALI_MARK_BEGIN(comp_large);
+    std::vector<int> merged_array(local_size * 2);
+    std::merge(local_array.begin(), local_array.end(), partner_array.begin(), partner_array.end(), merged_array.begin());
     
-        //Find midpoint to divide the array into two halves
-        int mid = count / 2;
-        
-        //Iterate through first half of current section and compare with second half
-        for (int i = low; i < low + mid; i++) {
-          swap(array, i, i+mid, dir);
+    if (direction) {
+        if (rank < partner) {
+            std::copy(merged_array.begin(), merged_array.begin() + local_size, local_array.begin());
+        } else {
+            std::copy(merged_array.begin() + local_size, merged_array.end(), local_array.begin());
         }
-        // Recursively merge first half of current section
-        bitonicMerge(array, low, mid, dir);
-        
-        // Recursively merge second half of the current section
-        bitonicMerge(array, low + mid, mid, dir);
-    }
-}
-
-//Function to recursively sort an array using the bitonic sort algorithm
-void bitonicSort(int *array, int low, int count, int dir) {
-    if (count > 1) {
-        int mid = count / 2;
-        
-        //Sorts the first half in ASCENDING order
-        bitonicSort(array, low, mid, ASCENDING);
-        
-        //Sorts the second half in descending order
-        bitonicSort(array, low + mid, mid, DESCENDING);
-        
-        //Merge the two halves in the specified direction (dir)
-        bitonicMerge(array, low, count, dir);
-    }
-}
-
-// Function to perform the parallel merge after local sorting
-void parallelBitonicMerge(int *array, int count, int dir, int rank, int num_procs) {
-
-    //stepSize determines the number of processes involved in each merge
-    int stepSize;
-    
-    // stepSize = 2 initially because two processes will exchange and merge their data
-    // stepSize doubles at each iteration in order to group more processes together for             merging
-    for (stepSize = 2; stepSize <= num_procs; stepSize *= 2) {
-        // XOR operation used to find the process that each current process will exchange               data with
-        // using XOR ensures that the pairing follows the hierarchical structure for merging
-        int partner = (rank ^ (stepSize >> 1));
-
-        if (partner < num_procs) {
-            // Allocate memory for receiving data from the partner process
-            int *recv_data = (int *)malloc((count) * sizeof(int));
-            
-            CALI_MARK_END(comp_large);
-            CALI_MARK_END(comp);
-            CALI_MARK_BEGIN(comm);
-            {
-              CALI_MARK_BEGIN(comm_small);
-              // Send local data to the partner and receive data from the partner
-              MPI_Sendrecv(array, count, MPI_INT, partner, 0,
-                         recv_data, count, MPI_INT, partner, 0,
-                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-              CALI_MARK_END(comm_small);
-            }
-            CALI_MARK_END(comm);
-            
-            CALI_MARK_BEGIN(comp);
-            CALI_MARK_BEGIN(comp_large);
-                         
-            // Merge received data with local data
-            for (int i = 0; i < count; ++i) {
-                array[i] = recv_data[i];
-            }
-            
-            // Perform bitonic merge on the combined data
-            bitonicMerge(array, 0, count, dir);
-            
-            free(recv_data);
+    } else {
+        if (rank < partner) {
+            std::copy(merged_array.begin() + local_size, merged_array.end(), local_array.begin());
+        } else {
+            std::copy(merged_array.begin(), merged_array.begin() + local_size, local_array.begin());
         }
     }
+    CALI_MARK_END(comp_large);
+    CALI_MARK_END(comp);
+  
 }
 
 
 int main(int argc, char *argv[]) {
-
-    //Adiak metadata
+    // Adiak metadata
     adiak::init(NULL);
-    adiak::launchdate();    // launch date of the job
-    adiak::libraries();     // Libraries used
-    adiak::cmdline();       // Command line used to launch the job
-    adiak::clustername();   // Name of the cluster
-    adiak::value("algorithm", "bitonic"); // The name of the algorithm you are using (e.g.,      "merge", "bitonic")
-    adiak::value("programming_model", "mpi"); // e.g. "mpi"
-    adiak::value("data_type", "int"); // The datatype of input elements (e.g., double, int,      float)
-    adiak::value("size_of_data_type", sizeof(int)); // sizeof(datatype) of input elements in     bytes (e.g., 1, 2, 4)
-    adiak::value("input_type", "Random"); // For sorting, this would be choices: ("Sorted",      "ReverseSorted", "Random", "1_perc_perturbed")
-    //adiak::value("scalability", scalability); // The scalability of your algorithm. choices    : ("strong", "weak")
-    adiak::value("gtoup_number", 7); // The number of your group (integer, e.g., 1, 10)
-    adiak::value("implementation_source", "handwritten"); // Where you got the source code of    your algorithm. choices: ("online", "ai", "handwritten").
+    adiak::launchdate();
+    adiak::libraries(); 
+    adiak::cmdline(); 
+    adiak::clustername();
+    adiak::value("algorithm", "bitonic"); 
+    adiak::value("programming_model", "mpi"); 
+    adiak::value("data_type", "int");
+    adiak::value("size_of_data_type", sizeof(int)); 
     
-    CALI_CXX_MARK_FUNCTION;  
+    adiak::value("group_number", 7);
+    adiak::value("implementation_source", "online");
+    
+    CALI_CXX_MARK_FUNCTION;
     
     // Create caliper ConfigManager object
     cali::ConfigManager mgr;
     mgr.start();
-      
-    int sizeOfArray;
+    
+    int array_size;
+    std::string algorithm;
+    std::string input_type;
     if (argc == 4) {
-        std::string algorithm = argv[1];
-        sizeOfArray = atoi(argv[2]);
-        std::string input_type = argv[3];
+        algorithm = argv[1];
+        array_size = atoi(argv[2]);
+        input_type = argv[3];
     } else {
         printf("\n Please provide the size of the array");
         return 0;
     }
     
     int num_procs, rank;
-    int *data = NULL; //pointer to hold the entire array
-    int local_size; //size of local section of array for each process
-    int *local_data; //pointer to hold local section of array
+    std::vector<int> data;  // Changed to use std::vector
+    int local_size;         // size of local section of array for each process
+    std::vector<int> local_data;  // Changed to use std::vector
     
-    adiak::value("input_size",sizeOfArray); // The number of elements in input dataset (1000)
-    adiak::value("num_procs", num_procs); // The number of processors (MPI ranks)
+    adiak::value("input_size", array_size);
+    adiak::value("num_procs", num_procs);
+    adiak::value("input_type", input_type);
 
     // Initialize MPI
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    
-    // Rank 0 initializes random data and scatters to other processes
-    CALI_MARK_BEGIN(data_init_runtime);
-    if (rank == 0) {
-        data = (int *)malloc(sizeOfArray * sizeof(int));
-        srand(time(NULL));
 
-        // Generating random data
-        for (int i = 0; i < sizeOfArray; i++) {
-            data[i] = rand() % sizeOfArray;  
+    
+    if (rank == 0) {
+      CALI_MARK_BEGIN(data_init_runtime);
+      data.resize(array_size);
+      for (int i = 0; i < array_size; i++) {
+        if (input_type == "random") {
+            data[i] = rand() % 10000;
+        } else if (input_type == "sorted" || input_type == "perturbed") {
+            data[i] = i;
+        } else if (input_type == "reverse") {
+            data[i] = array_size - i;
         }
+      }
+        
+      if (input_type == "perturbed") {
+        int num_perturbed = array_size / 100;  // 1% of the elements
+        for (int i = 0; i < num_perturbed; i++) {
+          int idx1 = rand() % array_size;
+          int idx2 = rand() % array_size;
+          std::swap(data[idx1], data[idx2]);
+        }
+      }
+      
+      /*std::cout<<"Initial Array: "<<std::endl;
+      for(int i = 0; i < array_size; ++i){
+        std::cout<<data[i]<<" ";
+        }
+        std::cout<<"\n";*/
+      CALI_MARK_END(data_init_runtime);
     }
-    CALI_MARK_END(data_init_runtime);
+    
 
     // Determine local array size
-    local_size = sizeOfArray / num_procs;
-    local_data = (int *)malloc(local_size * sizeof(int));
-
-    // Scatter the data to all processes
-    CALI_MARK_BEGIN(comm);
-    {
-        CALI_MARK_BEGIN(comm_large);
-        
-        MPI_Scatter(data, local_size, MPI_INT, local_data, local_size, MPI_INT, 0,                  MPI_COMM_WORLD);
-        
-        CALI_MARK_END(comm_large);
-    }
-    CALI_MARK_END(comm);
-
-    // Perform bitonic sort on the local data
     CALI_MARK_BEGIN(comp);
-    {
-        CALI_MARK_BEGIN(comp_large);
-        bitonicSort(local_data, 0, local_size, ASCENDING);
-        
-        // Perform parallel merging of locally sorted arrays
-        parallelBitonicMerge(local_data, local_size, sizeOfArray, rank, num_procs);
-        
-        CALI_MARK_END(comp_large);
-    }
+    CALI_MARK_BEGIN(comp_small);
+    
+    local_size = array_size / num_procs;
+    local_data.resize(local_size);
+    
+    CALI_MARK_END(comp_small);
     CALI_MARK_END(comp);
 
-   
+
     CALI_MARK_BEGIN(comm);
-    {
-      CALI_MARK_BEGIN(comm_large);
-      // Gather the sorted local arrays to the root process 
-      MPI_Gather(local_data, local_size, MPI_INT, data, local_size, MPI_INT, 0,   MPI_COMM_WORLD);
-      CALI_MARK_END(comm_large);
-    }
+    CALI_MARK_BEGIN(comm_small);
+    MPI_Bcast(&num_procs, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END(comm_small);
     CALI_MARK_END(comm);
 
-    // Ir root process, check if final data is sorted
-    if (rank == 0) {
-        
-        CALI_MARK_BEGIN(comp);
-        {
-          CALI_MARK_BEGIN(comp_large);
-          bitonicSort(data, 0, sizeOfArray, ASCENDING);
-          CALI_MARK_END(comp_large);
-        }
-        CALI_MARK_END(comp);
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN(comm_large);
 
-        // Check if the final sorted array is correct
-        CALI_MARK_BEGIN(correctness_check);
-        if (std::is_sorted(data, data + sizeOfArray)) {
-            printf("Process %d: The data is correctly sorted\n", rank);
-        } else {
-            printf("Process %d: The data is NOT sorted correctly\n", rank);
-        }
-        CALI_MARK_END(correctness_check);
+    MPI_Scatter(data.data(), local_size, MPI_INT, local_data.data(), local_size, MPI_INT, 0, MPI_COMM_WORLD);
 
-        // Free the data array on the root process
-        free(data);
+    CALI_MARK_END(comm_large);
+    CALI_MARK_END(comm);
+
+   // Local sort
+    CALI_MARK_BEGIN(comp);
+    CALI_MARK_BEGIN(comp_large);
+    std::sort(local_data.begin(), local_data.end());
+    CALI_MARK_END(comp_large);
+    CALI_MARK_END(comp);
+
+
+
+    // Exchange with partner
+    for (int i = 2; i <= num_procs; i *= 2) {
+        for (int j = i / 2; j > 0; j /= 2) {
+            int partner = rank ^ j;
+            bool direction = ((rank & i) == 0);
+            if (partner < num_procs) {
+                parallelBitonicSort(local_data, partner, rank, local_size, direction);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
     }
 
-    // Free local data array
-    free(local_data);
+    // Gather sorted arrays to root process
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN(comm_large);
+
+    MPI_Gather(local_data.data(), local_size, MPI_INT, data.data(), local_size, MPI_INT, 0, MPI_COMM_WORLD);
     
+    CALI_MARK_END(comm_large);
+    CALI_MARK_END(comm);
+
+    if (rank == 0)
+    {
+        /*std::cout << "Sorted array: ";
+        for (int i = 0; i < data.size(); ++i)
+        {
+            std::cout << data.at(i) << ", ";
+        }*/
+        
+        // Check if the final sorted array is correct
+        CALI_MARK_BEGIN(correctness_check);
+        if (std::is_sorted(data.begin(), data.end())) {
+            std::cout<<"The data is correctly sorted"<<std::endl;
+        } else {
+            std::cout<<"The data is NOT sorted correctly"<<std::endl;
+        }
+        CALI_MARK_END(correctness_check);
+    }
+
     mgr.stop();
     mgr.flush();
 
