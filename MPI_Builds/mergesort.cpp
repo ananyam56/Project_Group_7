@@ -127,7 +127,9 @@ int main(int argc, char *argv[]) {
 
         // Scatter the data
         CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
         MPI_Scatterv(full_data, send_counts, displs, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
 
         delete[] full_data;
@@ -138,13 +140,17 @@ int main(int argc, char *argv[]) {
     } else {
         // Other processes just receive data
         CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
         MPI_Scatterv(NULL, NULL, NULL, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
     }
 
     // Local sorting
     CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_large");  // Mark computation on large data
     std::sort(local_data, local_data + local_size);
+    CALI_MARK_END("comp_large");
     CALI_MARK_END("comp");
 
     // Gather sorted data at root
@@ -167,7 +173,9 @@ int main(int argc, char *argv[]) {
 
         // Gather sorted data
         CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
         MPI_Gatherv(local_data, local_size, MPI_INT, full_data, recv_counts, displs, MPI_INT, 0, MPI_COMM_WORLD);
+        CALI_MARK_END("comm_large");
         CALI_MARK_END("comm");
 
         // Perform global merge of sorted chunks
