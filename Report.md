@@ -489,13 +489,13 @@ All graphs are under the Graph Folder, including the Python code used to plot th
 
 Merge Sort Example Graphs
 Example Strong Scaling for Main 2^18 Merge Sort:
-![image](https://github.com/user-attachments/assets/780d00b7-5277-4f2a-b928-ac8fe552798c)
+![image](https://github.com/user-attachments/assets/cdde75ad-9b9d-4d6d-b3b4-868bbbdc4c65)
 
-![image](https://github.com/user-attachments/assets/be272ee4-9006-4211-a4e2-7a6c45827fb7)
+![image](https://github.com/user-attachments/assets/e74ed8d6-4b19-41c7-abd3-30191a5e4862)
 
-![image](https://github.com/user-attachments/assets/2f969ea0-6ed0-418a-b678-5d2b4aeac13e)
-
-
+![image](https://github.com/user-attachments/assets/03256619-5b8f-45e8-b21d-c5546bff12e6)
+Analysis:
+The strong scaling graph for Merge Sort reflects how the performance of the algorithm changes as the number of processors increases for a given input size (262144). In the graph, we observe that initially, the Min time per rank decreases, indicating improved performance due to parallelism, but after a certain number of processors, the time starts to increase again. This can be attributed to the communication overhead in the implementation. During the scatter and gather phases (`MPI_Scatterv` and `MPI_Gatherv`), data needs to be distributed and collected among processors, which involves large data transfers. As the number of processors increases, the communication cost associated with these operations grows, leading to diminishing returns in performance improvement. Moreover, the final global merge of the sorted data across processors, which is a sequential operation, introduces additional overhead as the number of processors grows, explaining the rise in time at higher processor counts.
 
 
 Sample Sort Example Graphs
