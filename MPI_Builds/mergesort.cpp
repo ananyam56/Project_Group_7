@@ -125,26 +125,19 @@ int main(int argc, char *argv[]) {
             offset += send_counts[i];
         }
 
-        // Scatter the data
-        CALI_MARK_BEGIN("comm");
-        CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
-        MPI_Scatterv(full_data, send_counts, displs, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
-        CALI_MARK_END("comm_large");
-        CALI_MARK_END("comm");
-
         delete[] full_data;
         delete[] send_counts;
         delete[] displs;
 
         CALI_MARK_END("data_init_runtime");
-    } else {
-        // Other processes just receive data
-        CALI_MARK_BEGIN("comm");
-        CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
-        MPI_Scatterv(NULL, NULL, NULL, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
-        CALI_MARK_END("comm_large");
-        CALI_MARK_END("comm");
-    }
+    } 
+    
+    // Scatter the data
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");  // Mark communication of large data
+    MPI_Scatterv(full_data, send_counts, displs, MPI_INT, local_data, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
 
     // Local sorting
     CALI_MARK_BEGIN("comp");
