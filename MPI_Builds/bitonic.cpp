@@ -74,19 +74,7 @@ void parallelBitonicSort(std::vector<int>& local_array, int partner, int rank, i
 
 
 int main(int argc, char *argv[]) {
-    // Adiak metadata
-    adiak::init(NULL);
-    adiak::launchdate();
-    adiak::libraries(); 
-    adiak::cmdline(); 
-    adiak::clustername();
-    adiak::value("algorithm", "bitonic"); 
-    adiak::value("programming_model", "mpi"); 
-    adiak::value("data_type", "int");
-    adiak::value("size_of_data_type", sizeof(int)); 
-    
-    adiak::value("group_number", 7);
-    adiak::value("implementation_source", "online");
+ 
     
     CALI_CXX_MARK_FUNCTION;
     
@@ -107,18 +95,34 @@ int main(int argc, char *argv[]) {
     }
     
     int num_procs, rank;
-    std::vector<int> data;  // Changed to use std::vector
-    int local_size;         // size of local section of array for each process
-    std::vector<int> local_data;  // Changed to use std::vector
+    std::vector<int> data;
+    int local_size;
+    std::vector<int> local_data;
     
-    adiak::value("input_size", array_size);
-    adiak::value("num_procs", num_procs);
-    adiak::value("input_type", input_type);
-
+    
     // Initialize MPI
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    
+    
+    // Adiak metadata
+    adiak::init(NULL);
+    adiak::launchdate();
+    adiak::libraries();
+    adiak::cmdline();
+    adiak::clustername();
+    adiak::value("algorithm", "bitonic");
+    adiak::value("programming_model", "mpi");
+    adiak::value("data_type", "int");
+    adiak::value("size_of_data_type", sizeof(int));
+    adiak::value("input_size", array_size);
+    adiak::value("input_type", input_type);
+    adiak::value("num_procs", num_procs);
+    adiak::value("scalability", "strong");  // or "weak" depending on the experiment
+    adiak::value("group_num", 7); 
+    adiak::value("implementation_source", "online");
+
 
     
     if (rank == 0) {
