@@ -460,7 +460,7 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 Caliper Files are in the Cali_Files folder
 Notes (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
-(Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account (She has contacted the helpdek, TA's and the Proffesor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types)
+(Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account (She has contacted the helpdek, TA's and the Proffesor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types). Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before.
 
 ### 4b. Hints for performance analysis
 
