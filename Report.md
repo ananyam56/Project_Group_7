@@ -458,6 +458,10 @@ MPI: num_procs:
 
 This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
+Caliper Files are in the Cali_Files folder
+Notes (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
+(Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account (She has contacted the helpdek, TA's and the Proffesor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types). Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before.
+
 ### 4b. Hints for performance analysis
 
 To automate running a set of experiments, parameterize your program.
@@ -471,12 +475,21 @@ that will run a for loop over the parameters above (e.g., on 64 processors,
 perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).  
 
 ### 4c. You should measure the following performance metrics
+All graphs are under the Graph Folder, including the Python code used to plot them. 
 - `Time`
     - Min time/rank
     - Max time/rank
     - Avg time/rank
     - Total time
     - Variance time/rank
+Sample Sort Example Graphs
+Example Graphs Sample Sort: 
+![image](https://github.com/user-attachments/assets/a09153c9-da06-45cc-89e5-2e8f1fca1432)
+
+![image](https://github.com/user-attachments/assets/6c2252dc-70e7-4628-9231-b6cd544f8ce7)
+
+![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
+
 
 
 ## 5. Presentation
