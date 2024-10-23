@@ -516,6 +516,11 @@ Example Strong Scaling for Main 2^18 Sample Sort:
 Analysis: 
 The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
 
+#### Bitonic Sort
+For bitonic sort, strong scaling initially shows good performance improvement as the numbers of processors increases. However, after a certain point, performance degrades due to communication overhead. The MPI_SendRecv operations required during the bitonic merging phase become expensive with increasing processor counts. This overhead becomes the main bottleneck in this cases as some processors experience delays due to synchronization and uneven communication load.
+
+In weak scaling, where both the input size and processor count grow proportionally, the communication time increases significantly. Ther merging phase in bitonic sort, which involves frequent communciation between processors, dominates the time per rank as both the input size and the number of processors grow. The Max time per rank rises sharply due to communication bottlenecks, particularly with the perturbed and reversed input types.
+
 
 ## 5. Presentation
 Plots for the presentation should be as follows:
