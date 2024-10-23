@@ -479,13 +479,23 @@ that will run a for loop over the parameters above (e.g., on 64 processors,
 perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).  
 
 ### 4c. You should measure the following performance metrics
-All graphs are under the Graph Folder, including the Python code used to plot them. 
+All graphs are under the Graph Folder, including the Python code used to plot them. We used the Min time/rank, Max time/rank, and Avg time/rank performance metrics to evaluate performance.
 - `Time`
     - Min time/rank
     - Max time/rank
     - Avg time/rank
     - Total time
     - Variance time/rank
+
+Merge Sort Example Graphs
+Example Strong Scaling for Main 2^18 Merge Sort:
+![image](https://github.com/user-attachments/assets/780d00b7-5277-4f2a-b928-ac8fe552798c)
+
+![image](https://github.com/user-attachments/assets/be272ee4-9006-4211-a4e2-7a6c45827fb7)
+
+![image](https://github.com/user-attachments/assets/2f969ea0-6ed0-418a-b678-5d2b4aeac13e)
+
+
 
 
 Sample Sort Example Graphs
