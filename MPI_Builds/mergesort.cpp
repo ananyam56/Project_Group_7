@@ -92,6 +92,10 @@ int main(int argc, char *argv[]) {
     }
     int* local_data = new int[local_size];
 
+    int* full_data = nullptr;
+    int* send_counts = nullptr;
+    int* displs = nullptr;
+
     // Root process initializes data
     if (rank == 0) {
         CALI_MARK_BEGIN("data_init_runtime");
@@ -116,8 +120,6 @@ int main(int argc, char *argv[]) {
         }
 
         // Prepare data distribution (scatter)
-        int* send_counts = new int[size];
-        int* displs = new int[size];
         int offset = 0;
         for (int i = 0; i < size; i++) {
             send_counts[i] = array_size / size + (i < remainder ? 1 : 0);
@@ -125,9 +127,9 @@ int main(int argc, char *argv[]) {
             offset += send_counts[i];
         }
 
-        delete[] full_data;
-        delete[] send_counts;
-        delete[] displs;
+        // delete[] full_data;
+        // delete[] send_counts;
+        // delete[] displs;
 
         CALI_MARK_END("data_init_runtime");
     } 
@@ -162,7 +164,7 @@ int main(int argc, char *argv[]) {
             total_elements += recv_counts[i];
         }
 
-        int* full_data = new int[total_elements];
+        full_data = new int[total_elements];
 
         // Gather sorted data
         CALI_MARK_BEGIN("comm");
@@ -185,7 +187,7 @@ int main(int argc, char *argv[]) {
 
         delete[] full_data;
         delete[] recv_counts;
-        delete[] displs;
+        // delete[] displs;
     } else {
         // Non-root processes still perform communication
         MPI_Gather(&local_size, 1, MPI_INT, nullptr, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -194,6 +196,8 @@ int main(int argc, char *argv[]) {
 
     // Clean up and finalize
     delete[] local_data;
+    delete[] send_counts;
+    delete[] displs;
     MPI_Finalize();
     CALI_MARK_END("main");
 
