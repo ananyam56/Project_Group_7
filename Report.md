@@ -487,7 +487,7 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
     - Total time
     - Variance time/rank
 
-# Merge Sort Example Graphs
+#### Merge Sort Example Graphs
 Example Strong Scaling for Main 2^18 Merge Sort:
 ![image](https://github.com/user-attachments/assets/cdde75ad-9b9d-4d6d-b3b4-868bbbdc4c65)
 
@@ -498,7 +498,7 @@ Analysis:
 The strong scaling graph for Merge Sort reflects how the performance of the algorithm changes as the number of processors increases for a given input size (262144). In the graph, we observe that initially, the Min time per rank decreases, indicating improved performance due to parallelism, but after a certain number of processors, the time starts to increase again. This can be attributed to the communication overhead in the implementation. During the scatter and gather phases (`MPI_Scatterv` and `MPI_Gatherv`), data needs to be distributed and collected among processors, which involves large data transfers. As the number of processors increases, the communication cost associated with these operations grows, leading to diminishing returns in performance improvement. Moreover, the final global merge of the sorted data across processors, which is a sequential operation, introduces additional overhead as the number of processors grows, explaining the rise in time at higher processor counts.
 
 
-# Sample Sort Example Graphs
+#### Sample Sort Example Graphs
 Example Strong Scaling for Main 2^18 Sample Sort: 
 ![image](https://github.com/user-attachments/assets/a09153c9-da06-45cc-89e5-2e8f1fca1432)
 
