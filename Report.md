@@ -496,6 +496,7 @@ Example Strong Scaling for Main 2^18 Merge Sort:
 
 ![image](https://github.com/user-attachments/assets/03256619-5b8f-45e8-b21d-c5546bff12e6)
 
+Example Weak Scaling for Main and Comm Merge Sort:
 ![image](https://github.com/user-attachments/assets/57f0a24a-442e-4759-b0a5-0319b7c35ddd)
 
 ![image](https://github.com/user-attachments/assets/4d1ec680-81d4-4fcb-8099-6a4a68c5a0ae)
@@ -506,6 +507,23 @@ The strong scaling graph for Merge Sort reflects how the performance of the algo
 
 In the two graphs, we observe the weak scaling behavior for communication ("comm") and the overall process ("main") in a merge sort algorithm. As the number of MPI processes and input size both increase, the average time per rank rises significantly in both cases. For "comm," the time per rank remains relatively low at smaller input sizes and process counts, but escalates rapidly as both variables increase, indicating the communication overhead becomes a major bottleneck. In contrast, the "main" process shows a more dramatic rise in time per rank, suggesting that the combination of communication and computation costs dominate the scaling inefficiencies in larger configurations, particularly at the highest input sizes and number of processes.
 
+#### Radix Sort Example Graphs
+Example Strong Scaling for Main 2^18 Radix Sort:
+![image](https://github.com/user-attachments/assets/a3e74d6e-2f58-456b-ba87-fa71be4d72a9)
+
+![image](https://github.com/user-attachments/assets/89ca85ff-2ae8-4113-a9a2-5ce68e58e234)
+
+![image](https://github.com/user-attachments/assets/bca1bc3e-6d19-485f-ba70-59964651dead)
+
+Example Weak Scaling for Main and comm Radix Sort:
+![image](https://github.com/user-attachments/assets/4d3222ed-ad56-4c5b-9e51-dd4ccff4e571)
+
+![image](https://github.com/user-attachments/assets/7c5c836c-b2e8-444a-b838-535e41aa5b55)
+
+Analysis:
+The graphs show the average, maximum, and minimum times per rank for "main" (the primary sorting process). In the "Average Time/Rank" graph, Perturbed inputs consistently take the longest time to process as the number of MPI processes increases, followed closely by Random inputs. This trend is expected since perturbed and random inputs typically introduce more irregularities, resulting in higher computational and communication overhead. The "Maximum Time/Rank" graph reveals a similar pattern, with perturbed inputs once again performing worse at higher process counts, indicating that load balancing and inter-process communication challenges become more pronounced as the scale grows. These results highlight the growing inefficiencies as input irregularities increase, particularly in distributed radix sort, where digit-based comparisons require careful synchronization and communication across processes.
+
+The weak scaling graph for the "main" component displays the average time per rank across different input types and varying numbers of MPI processes, where the input size grows proportionally with the number of processes. The graph shows an upward trend, indicating that as the number of processes increases, the communication overhead also increases, leading to longer times per rank. All input types—Perturbed, Random, Reversed, and Sorted—show similar behavior, which implies that input data types do not have a major impact on weak scaling performance. This suggests that the implementation likely suffers from communication bottlenecks or synchronization issues that increase with more processes and larger input sizes. The nearly identical trends across input types demonstrate that the performance degradation is more closely tied to the scaling behavior of the system rather than the nature of the input data.
 
 #### Sample Sort Example Graphs
 Example Strong Scaling for Main 2^18 Sample Sort: 
