@@ -483,13 +483,14 @@ All graphs are under the Graph Folder, including the Python code used to plot th
     - Total time
     - Variance time/rank
 Sample Sort Example Graphs
-Example Graphs Sample Sort: 
+Example Strong Scaling for Main 2^18 Sample Sort: 
 ![image](https://github.com/user-attachments/assets/a09153c9-da06-45cc-89e5-2e8f1fca1432)
 
 ![image](https://github.com/user-attachments/assets/6c2252dc-70e7-4628-9231-b6cd544f8ce7)
 
 ![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
-
+Analysis: 
+The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
 
 
 ## 5. Presentation
