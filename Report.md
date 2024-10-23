@@ -458,6 +458,8 @@ MPI: num_procs:
 
 This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
+
+
 Caliper Files are in the Cali_Files folder
 Notes (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
 (Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account (She has contacted the helpdek, TA's and the Proffesor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types). Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before.
@@ -482,14 +484,17 @@ All graphs are under the Graph Folder, including the Python code used to plot th
     - Avg time/rank
     - Total time
     - Variance time/rank
+
+
 Sample Sort Example Graphs
-Example Graphs Sample Sort: 
+Example Strong Scaling for Main 2^18 Sample Sort: 
 ![image](https://github.com/user-attachments/assets/a09153c9-da06-45cc-89e5-2e8f1fca1432)
 
 ![image](https://github.com/user-attachments/assets/6c2252dc-70e7-4628-9231-b6cd544f8ce7)
 
 ![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
-
+Analysis: 
+The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
 
 
 ## 5. Presentation
