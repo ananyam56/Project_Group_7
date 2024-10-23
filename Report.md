@@ -460,9 +460,11 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 
 
-Caliper Files are in the Cali_Files folder
-Notes (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
-(Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account (She has contacted the helpdek, TA's and the Proffesor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types). Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before.
+Notes 
+- Caliper Files are in the Cali_Files folder
+- (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
+- (Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account since Sunday morning (She has contacted the helpdesk, TA's and the professor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types which include sorted, perturbed, and reverse). Her algorithm, code and all the files she uses work perfectly to generate cali files on other peoples' Grace accounts.
+- (Bitonic Sort - Abigail)Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before.
 
 ### 4b. Hints for performance analysis
 
@@ -477,7 +479,7 @@ that will run a for loop over the parameters above (e.g., on 64 processors,
 perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).  
 
 ### 4c. You should measure the following performance metrics
-All graphs are under the Graph Folder, including the Python code used to plot them. 
+- All graphs are under the Graph Folder, including the Python code used to plot them. We used the Min time/rank, Max time/rank, and Avg time/rank performance metrics to evaluate performance.
 - `Time`
     - Min time/rank
     - Max time/rank
@@ -485,8 +487,26 @@ All graphs are under the Graph Folder, including the Python code used to plot th
     - Total time
     - Variance time/rank
 
+#### Merge Sort Example Graphs
+Example Strong Scaling for Main 2^18 Merge Sort:
+![image](https://github.com/user-attachments/assets/cdde75ad-9b9d-4d6d-b3b4-868bbbdc4c65)
 
-Sample Sort Example Graphs
+![image](https://github.com/user-attachments/assets/e74ed8d6-4b19-41c7-abd3-30191a5e4862)
+
+![image](https://github.com/user-attachments/assets/03256619-5b8f-45e8-b21d-c5546bff12e6)
+
+![image](https://github.com/user-attachments/assets/57f0a24a-442e-4759-b0a5-0319b7c35ddd)
+
+![image](https://github.com/user-attachments/assets/4d1ec680-81d4-4fcb-8099-6a4a68c5a0ae)
+
+
+Analysis:
+The strong scaling graph for Merge Sort reflects how the performance of the algorithm changes as the number of processors increases for a given input size (262144). In the graph, we observe that initially, the Min time per rank decreases, indicating improved performance due to parallelism, but after a certain number of processors, the time starts to increase again. This can be attributed to the communication overhead in the implementation. During the scatter and gather phases (`MPI_Scatterv` and `MPI_Gatherv`), data needs to be distributed and collected among processors, which involves large data transfers. As the number of processors increases, the communication cost associated with these operations grows, leading to diminishing returns in performance improvement. Moreover, the final global merge of the sorted data across processors, which is a sequential operation, introduces additional overhead as the number of processors grows, explaining the rise in time at higher processor counts.
+
+In the two graphs, we observe the weak scaling behavior for communication ("comm") and the overall process ("main") in a merge sort algorithm. As the number of MPI processes and input size both increase, the average time per rank rises significantly in both cases. For "comm," the time per rank remains relatively low at smaller input sizes and process counts, but escalates rapidly as both variables increase, indicating the communication overhead becomes a major bottleneck. In contrast, the "main" process shows a more dramatic rise in time per rank, suggesting that the combination of communication and computation costs dominate the scaling inefficiencies in larger configurations, particularly at the highest input sizes and number of processes.
+
+
+#### Sample Sort Example Graphs
 Example Strong Scaling for Main 2^18 Sample Sort: 
 ![image](https://github.com/user-attachments/assets/a09153c9-da06-45cc-89e5-2e8f1fca1432)
 
