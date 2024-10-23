@@ -99,7 +99,10 @@ int main(int argc, char *argv[]) {
     // Root process initializes data
     if (rank == 0) {
         CALI_MARK_BEGIN("data_init_runtime");
-        double* full_data = new double[array_size];
+        full_data = new int[array_size];  // corrected from double* to int*
+        send_counts = new int[size];
+        displs = new int[size];
+        // double* full_data = new double[array_size];
         for (int i = 0; i < array_size; i++) {
             if (input_type == "random") {
                 full_data[i] = rand() % 10000;
