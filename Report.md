@@ -536,6 +536,8 @@ Analysis:
 The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
 
 #### Bitonic Sort
+![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/strong_scaling/StrongScaling_main_InputSize_67108864_Avg_time_rank.png?raw=true)
+![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/weak_scaling/WeakScaling_main_Avg_time_rank.png?raw=true)
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/speedup/Speedup_main_Avg_time_rank_tk_bitonicsort_sorted.png?raw=true)
 For bitonic sort, strong scaling initially shows good performance improvement as the numbers of processors increases. However, after a certain point, performance degrades due to communication overhead. The MPI_SendRecv operations required during the bitonic merging phase become expensive with increasing processor counts. This overhead becomes the main bottleneck in this cases as some processors experience delays due to synchronization and uneven communication load.
 
