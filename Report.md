@@ -501,11 +501,15 @@ Example Weak Scaling for Main and Comm Merge Sort:
 
 ![image](https://github.com/user-attachments/assets/4d1ec680-81d4-4fcb-8099-6a4a68c5a0ae)
 
+Example Strong Scaling for comp_large Merge Sort:
+![image](https://github.com/user-attachments/assets/27352acc-894f-44a1-bb0f-34457fc6df2d)
 
 Analysis:
 The strong scaling graph for Merge Sort reflects how the performance of the algorithm changes as the number of processors increases for a given input size (262144). In the graph, we observe that initially, the Min time per rank decreases, indicating improved performance due to parallelism, but after a certain number of processors, the time starts to increase again. This can be attributed to the communication overhead in the implementation. During the scatter and gather phases (`MPI_Scatterv` and `MPI_Gatherv`), data needs to be distributed and collected among processors, which involves large data transfers. As the number of processors increases, the communication cost associated with these operations grows, leading to diminishing returns in performance improvement. Moreover, the final global merge of the sorted data across processors, which is a sequential operation, introduces additional overhead as the number of processors grows, explaining the rise in time at higher processor counts.
 
 In the two graphs, we observe the weak scaling behavior for communication ("comm") and the overall process ("main") in a merge sort algorithm. As the number of MPI processes and input size both increase, the average time per rank rises significantly in both cases. For "comm," the time per rank remains relatively low at smaller input sizes and process counts, but escalates rapidly as both variables increase, indicating the communication overhead becomes a major bottleneck. In contrast, the "main" process shows a more dramatic rise in time per rank, suggesting that the combination of communication and computation costs dominate the scaling inefficiencies in larger configurations, particularly at the highest input sizes and number of processes.
+
+This speedup graph illustrates that merge sort scales well with the number of processes for smaller input sizes. However, as the input size grows, the effectiveness of adding more processes decreases, with speedup plateauing for the largest inputs. This behavior suggests that while parallel merge sort can be efficient for smaller or moderate data sizes, it faces limitations when scaling to very large datasets due to communication overhead, load imbalance, and data transfer bottlenecks.
 
 #### Radix Sort Example Graphs
 Example Strong Scaling for Main 2^18 Radix Sort:
