@@ -541,11 +541,20 @@ Example Strong Scaling for Main 2^18 Sample Sort:
 ![image](https://github.com/user-attachments/assets/6c2252dc-70e7-4628-9231-b6cd544f8ce7)
 
 ![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
+Example of Weak Scaling: 
+![image](https://github.com/user-attachments/assets/c73b8723-95d3-4be7-adbe-9364253415b8)
+![image](https://github.com/user-attachments/assets/8630f71c-933d-4f62-8028-1370a7f9e0b9)
 
+
+Example of Speedup: 
 ![image](https://github.com/user-attachments/assets/27f3aa66-4f84-4014-a2df-11018e3e0891)
+
 
 Analysis: 
 The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
+
+
+These weak scaling graphs show that average time per rank initially remains stable across input types as input size and MPI processes increase, but escalates significantly beyond 2^24 elements, especially for reversed and perturbed data. This suggests that the sample sort algorithm handles weak scaling effectively at smaller scales but struggles with increased communication and computation overhead at higher input sizes, particularly for more complex input types like reversed data.
 
 
 The speedup graph for sample sort on random input data reveals that the algorithm scales well for smaller input sizes, with significant speedup achieved by increasing the number of MPI processes, especially for sizes 2^16 and 2^18. However, as input sizes grow, larger datasets show almost negligible speedup even with 1024 processes. This suggests that communication and synchronization overheads outweigh the benefits of parallel computation at high process counts, particularly for large inputs. For this implementation, moderate process counts yield optimal performance for small to medium input sizes, while larger inputs may benefit from fewer processes to reduce overhead.
