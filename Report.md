@@ -490,16 +490,16 @@ perform runs that invoke algorithm2 for Sorted, ReverseSorted, and Random data).
 
 #### Merge Sort Example Graphs
 Example Strong Scaling for Main 2^18 Merge Sort:
-![image](https://github.com/user-attachments/assets/cdde75ad-9b9d-4d6d-b3b4-868bbbdc4c65)
+![image](https://github.com/user-attachments/assets/ed0e6c97-7d00-4eba-ae08-0b74b7079d0b)
 
-![image](https://github.com/user-attachments/assets/e74ed8d6-4b19-41c7-abd3-30191a5e4862)
+![image](https://github.com/user-attachments/assets/2e2a8672-a2a2-47c3-b1fc-1c99d6510b35)
 
-![image](https://github.com/user-attachments/assets/03256619-5b8f-45e8-b21d-c5546bff12e6)
+![image](https://github.com/user-attachments/assets/e09ca6ee-7184-4e6a-8e25-633316463820)
 
 Example Weak Scaling for Main and Comm Merge Sort:
-![image](https://github.com/user-attachments/assets/57f0a24a-442e-4759-b0a5-0319b7c35ddd)
+![image](https://github.com/user-attachments/assets/e331ee56-99a9-4e98-9a16-8f7488e8c8e9)
 
-![image](https://github.com/user-attachments/assets/4d1ec680-81d4-4fcb-8099-6a4a68c5a0ae)
+![image](https://github.com/user-attachments/assets/5984a640-2c77-40b9-bbbb-0c07392abaad)
 
 Example Strong Scaling for comp_large Merge Sort:
 ![image](https://github.com/user-attachments/assets/27352acc-894f-44a1-bb0f-34457fc6df2d)
