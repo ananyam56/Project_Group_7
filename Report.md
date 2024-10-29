@@ -462,10 +462,10 @@ This should result in 4x7x10=280 Caliper files for your MPI experiments.
 
 Notes 
 - Caliper Files are in the Cali_Files folder
-- (Sample Sort - Veda) is missing the perturbed input type on 512 processors due to the hydra issue in Grace. 
-- (Merge Sort - Ananya) 1024 random cali files are missing due to the hydra issue on grace. There has been issues with her account since Sunday morning (She has contacted the helpdesk, TA's and the professor, we are working as a group to generate the rest of her files, however due to constraints in account balance, issues with the grace queue delay, and time she is currently missing files for other input types which include sorted, perturbed, and reverse). Her algorithm, code and all the files she uses work perfectly to generate cali files on other peoples' Grace accounts.
-- (Bitonic Sort - Abigail)Half of the bitonic sort (Abigail) Cali files are missing as her jobs have been queued in Grace since 12 pm today, but have not gotten out of the queue in order to run. The first half ran perferctly fine the day before. Some metadata syncing issues in her code have caused problems with the graph. Due to the queue in Grace being backed up she is working on regenerating them, hence why bitonic does not include images. 
-- (Radix Sort - Jordyn) Jordyn is missing 1024 process files for the sorted input type and 3 1024 process files from random and reverse due to Grace issues and jobs in the queue taking a long time.
+- (Sample Sort - Veda) is missing the perturbed 2^22 input size on 1024 processors due to the hydra issue in Grace. 
+- (Merge Sort - Ananya) Some of the 1024 processor size inputs are missing across input types due to the hydra issue in Grace
+- (Bitonic Sort - Abigail) Some of the 1024 processor size inputs are missing across input types due to the hydra issue in Grace
+- (Radix Sort - Jordyn) Some of the 1024 processor size inputs are missing across input types due to the hydra issue in Grace
 
 ### 4b. Hints for performance analysis
 
@@ -532,8 +532,14 @@ Example Strong Scaling for Main 2^18 Sample Sort:
 ![image](https://github.com/user-attachments/assets/6c2252dc-70e7-4628-9231-b6cd544f8ce7)
 
 ![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
+
+![image](https://github.com/user-attachments/assets/27f3aa66-4f84-4014-a2df-11018e3e0891)
+
 Analysis: 
 The strong scaling analysis of Sample Sort across different input types procs highlights important performance characteristics in its implementation. Sample Sort partitions data into buckets, followed by redistribution across processors, so as the number of processors increases (notably beyond 512), the communication overhead grows greatly, mainly at the bucket redistribution phase. This overhead is further worsened with more complex inputs like Perturbed and Reverse, where uneven data distribution causes load imbalance and increased synchronization delays, leading to a rise in time per rank. 
+
+
+The speedup graph for sample sort on random input data reveals that the algorithm scales well for smaller input sizes, with significant speedup achieved by increasing the number of MPI processes, especially for sizes 2^16 and 2^18. However, as input sizes grow, larger datasets show almost negligible speedup even with 1024 processes. This suggests that communication and synchronization overheads outweigh the benefits of parallel computation at high process counts, particularly for large inputs. For this implementation, moderate process counts yield optimal performance for small to medium input sizes, while larger inputs may benefit from fewer processes to reduce overhead.
 
 #### Bitonic Sort
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/strong_scaling/StrongScaling_main_InputSize_67108864_Avg_time_rank.png?raw=true)
