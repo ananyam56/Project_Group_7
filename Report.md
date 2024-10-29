@@ -543,7 +543,7 @@ Example Strong Scaling for Main 2^18 Sample Sort:
 ![image](https://github.com/user-attachments/assets/881c2b49-51c3-4083-914f-563eeff44a99)
 Example of Weak Scaling: 
 ![image](https://github.com/user-attachments/assets/c73b8723-95d3-4be7-adbe-9364253415b8)
-![image](https://github.com/user-attachments/assets/f70d28ff-28ca-4cd3-8d1f-7c759f34ddae)
+![image](https://github.com/user-attachments/assets/548bc695-2374-48a7-bddf-1852ee03aaaa)
 
 
 Example of Speedup: 
