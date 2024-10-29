@@ -539,9 +539,11 @@ The strong scaling analysis of Sample Sort across different input types procs hi
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/strong_scaling/StrongScaling_main_InputSize_67108864_Avg_time_rank.png?raw=true)
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/weak_scaling/WeakScaling_main_Avg_time_rank.png?raw=true)
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/speedup/Speedup_main_Avg_time_rank_tk_bitonicsort_sorted.png?raw=true)
-For bitonic sort, strong scaling initially shows good performance improvement as the numbers of processors increases. However, after a certain point, performance degrades due to communication overhead. The MPI_SendRecv operations required during the bitonic merging phase become expensive with increasing processor counts. This overhead becomes the main bottleneck in this cases as some processors experience delays due to synchronization and uneven communication load.
+For bitonic sort, the strong scaling graph demonstrates that there is a performance improvement as the number of processors increases. However, after 64 processors, the performance seems to stabilize due to communication overhead. The MPI_SendRecv operations required during the bitonic merging phase become expensive with increasing processor counts. This overhead becomes the main bottleneck in this cases as some processors experience delays due to synchronization and uneven communication load.
 
-In weak scaling, where both the input size and processor count grow proportionally, the communication time increases significantly. Ther merging phase in bitonic sort, which involves frequent communciation between processors, dominates the time per rank as both the input size and the number of processors grow. The Max time per rank rises sharply due to communication bottlenecks, particularly with the perturbed and reversed input types.
+In weak scaling, where both the input size and processor count grow, the runtime increases across all input types as input sizes grow. The sorted and reversed inputs generally have lower runtimes copared to perturbed and random inputs, most likely because the bitonic sort algorithm is more effiicent with ordered data. The sharp rise in runtimes at larger input sizes highlights the limits of scalability, especially with perturbed and random inputs, indicating that the algorihtm may become less effective with very large datasets under weak scaling conditions.
+
+The speedup graph indicates that while smaller datasets achieve higher speedup with more processes, larger datasets reach a stable speedup, possibly due to the communication overhead.
 
 
 ## 5. Presentation
