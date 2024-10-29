@@ -520,10 +520,15 @@ Example Weak Scaling for Main and comm Radix Sort:
 
 ![image](https://github.com/user-attachments/assets/7c5c836c-b2e8-444a-b838-535e41aa5b55)
 
+Example Speedup for comp_large Radix Sort:
+![image](Graphs/RadixSort/speedup/Speedup_main_Avg_time_rank_tk_radixsort_random.png)
+
 Analysis:
 The graphs show the average, maximum, and minimum times per rank for "main" (the primary sorting process). In the "Average Time/Rank" graph, Perturbed inputs consistently take the longest time to process as the number of MPI processes increases, followed closely by Random inputs. This trend is expected since perturbed and random inputs typically introduce more irregularities, resulting in higher computational and communication overhead. The "Maximum Time/Rank" graph reveals a similar pattern, with perturbed inputs once again performing worse at higher process counts, indicating that load balancing and inter-process communication challenges become more pronounced as the scale grows. These results highlight the growing inefficiencies as input irregularities increase, particularly in distributed radix sort, where digit-based comparisons require careful synchronization and communication across processes.
 
 The weak scaling graph for the "main" component displays the average time per rank across different input types and varying numbers of MPI processes, where the input size grows proportionally with the number of processes. The graph shows an upward trend, indicating that as the number of processes increases, the communication overhead also increases, leading to longer times per rank. All input types—Perturbed, Random, Reversed, and Sorted—show similar behavior, which implies that input data types do not have a major impact on weak scaling performance. This suggests that the implementation likely suffers from communication bottlenecks or synchronization issues that increase with more processes and larger input sizes. The nearly identical trends across input types demonstrate that the performance degradation is more closely tied to the scaling behavior of the system rather than the nature of the input data.
+
+The speedup graph for the "main" component shows that while the radix sort implementation does benefit from parallelization, it eventually has scaling limitations, especially once it reaches higher processor counts. This pattern is common between all of our parallel sorting algorithms, because the communication cost becomes a bottleneck.
 
 #### Sample Sort Example Graphs
 Example Strong Scaling for Main 2^18 Sample Sort: 
