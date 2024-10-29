@@ -538,12 +538,15 @@ The strong scaling analysis of Sample Sort across different input types procs hi
 #### Bitonic Sort
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/strong_scaling/StrongScaling_main_InputSize_67108864_Avg_time_rank.png?raw=true)
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/weak_scaling/WeakScaling_main_Avg_time_rank.png?raw=true)
+![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/strong_scaling/StrongScaling_comm_InputSize_262144_Avg_time_rank.png?raw=true)
 ![image](https://github.com/ananyam56/Project_Group_7/blob/main/Graphs/BitonicSort/speedup/Speedup_main_Avg_time_rank_tk_bitonicsort_sorted.png?raw=true)
 For bitonic sort, the strong scaling graph demonstrates that there is a performance improvement as the number of processors increases. However, after 64 processors, the performance seems to stabilize due to communication overhead. The MPI_SendRecv operations required during the bitonic merging phase become expensive with increasing processor counts. This overhead becomes the main bottleneck in this cases as some processors experience delays due to synchronization and uneven communication load.
 
+The strong scaling communication graph shows that the ordered input types (sorted and reversed) experience lower communication overhead compared to disordered inputs (perturbed and random). The general trend for communication within this bitonic sort implementation is that as the number of processors increases, all inputs tend to show increased communication costs.
+
 In weak scaling, where both the input size and processor count grow, the runtime increases across all input types as input sizes grow. The sorted and reversed inputs generally have lower runtimes copared to perturbed and random inputs, most likely because the bitonic sort algorithm is more effiicent with ordered data. The sharp rise in runtimes at larger input sizes highlights the limits of scalability, especially with perturbed and random inputs, indicating that the algorihtm may become less effective with very large datasets under weak scaling conditions.
 
-The speedup graph indicates that while smaller datasets achieve higher speedup with more processes, larger datasets reach a stable speedup, possibly due to the communication overhead.
+The speedup graph indicates that while smaller datasets achieve higher speedup with more processes, larger datasets reach a stable speedup, possibly due to the communication overhead. The smaller input sizes initially achieve higher speedup, but the speedup diminishes as more processors are added due to the increasing cost of parallel communication.
 
 
 ## 5. Presentation
